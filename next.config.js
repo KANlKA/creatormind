@@ -1,13 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['i.ytimg.com', 'yt3.ggpht.com'],
+    domains: ["i.ytimg.com", "yt3.ggpht.com"],
   },
   experimental: {
     serverActions: {
-      bodySizeLimit: '2mb',
+      bodySizeLimit: "2mb",
     },
   },
-};
+}
 
-module.exports = nextConfig;
+export default nextConfig

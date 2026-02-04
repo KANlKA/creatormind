@@ -14,7 +14,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "@auth/mongodb-adapter": "^3.11.1",
     "@google/generative-ai": "^0.24.1",
