@@ -6,6 +6,21 @@ import { fetchAllVideos, fetchVideoComments } from "./fetcher";
 import { getTranscript } from "./transcript";
 import { analyzeVideo, analyzeComment } from "@/lib/ai/analyzer";
 
+// In-memory progress tracking
+interface SyncProgress {
+  userId: string;
+  totalVideos: number;
+  processedVideos: number;
+  currentVideo: string;
+  status: 'fetching' | 'analyzing' | 'completed' | 'failed';
+}
+
+const progressMap = new Map<string, SyncProgress>();
+
+export function getSyncProgress(userId: string): SyncProgress | null {
+  return progressMap.get(userId) || null;
+}
+
 export async function initiateChannelSync(
   userId: string,
   channelId: string,
@@ -38,15 +53,42 @@ async function syncChannelData(
   try {
     console.log(`Starting sync for user ${userId}, channel ${channelId}`);
 
+    // Initialize progress
+    progressMap.set(userId, {
+      userId,
+      totalVideos: 0,
+      processedVideos: 0,
+      currentVideo: 'Fetching videos...',
+      status: 'fetching',
+    });
+
     // Fetch all videos
     const videos = await fetchAllVideos(channelId, accessToken);
     console.log(`Fetched ${videos.length} videos`);
+
+    // Update progress with total count
+    progressMap.set(userId, {
+      userId,
+      totalVideos: videos.length,
+      processedVideos: 0,
+      currentVideo: 'Starting analysis...',
+      status: 'analyzing',
+    });
 
     let processedCount = 0;
 
     // Process each video
     for (const videoData of videos) {
       try {
+        // Update progress
+        progressMap.set(userId, {
+          userId,
+          totalVideos: videos.length,
+          processedVideos: processedCount,
+          currentVideo: videoData.title,
+          status: 'analyzing',
+        });
+
         // Check if video already exists
         const existingVideo = await Video.findOne({ videoId: videoData.videoId });
         if (existingVideo) {
@@ -58,12 +100,14 @@ async function syncChannelData(
         // Fetch transcript
         const transcript = await getTranscript(videoData.videoId);
 
-        // Fetch comments
+        // Fetch ALL comments (no limit)
         const comments = await fetchVideoComments(
           videoData.videoId,
-          200,
+          Infinity, // Fetch all comments
           accessToken
         );
+
+        console.log(`Fetched ${comments.length} comments for video ${videoData.videoId}`);
 
         // Analyze video with AI
         const analysis = await analyzeVideo({
@@ -129,6 +173,15 @@ async function syncChannelData(
       }
     }
 
+    // Update progress to completed
+    progressMap.set(userId, {
+      userId,
+      totalVideos: videos.length,
+      processedVideos: videos.length,
+      currentVideo: 'Completed!',
+      status: 'completed',
+    });
+
     // Update user status
     await User.findByIdAndUpdate(userId, {
       syncStatus: "completed",
@@ -138,6 +191,13 @@ async function syncChannelData(
     console.log(`Sync completed for user ${userId}`);
   } catch (error) {
     console.error("Sync error:", error);
+    progressMap.set(userId, {
+      userId,
+      totalVideos: 0,
+      processedVideos: 0,
+      currentVideo: 'Failed',
+      status: 'failed',
+    });
     await User.findByIdAndUpdate(userId, { syncStatus: "failed" });
     throw error;
   }

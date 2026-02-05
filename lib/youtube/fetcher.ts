@@ -82,28 +82,30 @@ export async function fetchAllVideos(channelId: string, accessToken: string): Pr
 }
 
 /**
- * Fetch top comments for a video
+ * Fetch all comments for a video (or up to maxResults if specified)
  */
 export async function fetchVideoComments(
   videoId: string,
-  maxResults: number = 200,
+  maxResults: number = Infinity,
   accessToken: string
 ): Promise<CommentData[]> {
   const client = getYouTubeClient(accessToken);
   const comments: CommentData[] = [];
   let pageToken: string | undefined;
-  
+
   try {
     do {
+      const remaining = maxResults === Infinity ? 100 : Math.min(100, maxResults - comments.length);
+
       const response = await client.commentThreads.list({
         part: ['snippet'],
         videoId,
-        maxResults: Math.min(100, maxResults - comments.length),
+        maxResults: remaining,
         order: 'relevance',
         textFormat: 'plainText',
         pageToken,
       });
-      
+
       response.data.items?.forEach(item => {
         const comment = item.snippet?.topLevelComment?.snippet;
         if (comment) {
@@ -116,18 +118,18 @@ export async function fetchVideoComments(
           });
         }
       });
-      
+
       pageToken = response.data.nextPageToken || undefined;
-      
-      if (comments.length >= maxResults) break;
-      
+
+      if (maxResults !== Infinity && comments.length >= maxResults) break;
+
       // Rate limiting
       await new Promise(resolve => setTimeout(resolve, 100));
-      
-    } while (pageToken && comments.length < maxResults);
-    
-    return comments.slice(0, maxResults);
-    
+
+    } while (pageToken);
+
+    return maxResults === Infinity ? comments : comments.slice(0, maxResults);
+
   } catch (error) {
     console.error(`Error fetching comments for video ${videoId}:`, error);
     return []; // Return empty array if comments are disabled

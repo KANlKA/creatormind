@@ -92,20 +92,81 @@ function ConnectChannelPrompt({ onConnect }: { onConnect: () => void }) {
 }
 
 function SyncingProgress({ channelName }: { channelName: string }) {
+  const [progress, setProgress] = useState<any>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const pollProgress = async () => {
+      try {
+        const res = await fetch('/api/youtube/progress');
+        const data = await res.json();
+        setProgress(data);
+
+        // If completed, refresh the page to show dashboard
+        if (data.status === 'completed') {
+          setTimeout(() => {
+            router.refresh();
+          }, 2000);
+        }
+      } catch (error) {
+        console.error('Error fetching progress:', error);
+      }
+    };
+
+    // Poll every 2 seconds
+    pollProgress();
+    const interval = setInterval(pollProgress, 2000);
+
+    return () => clearInterval(interval);
+  }, [router]);
+
+  const progressPercentage = progress?.totalVideos > 0
+    ? Math.round((progress.processedVideos / progress.totalVideos) * 100)
+    : 0;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
       <Card className="max-w-2xl w-full bg-white/10 backdrop-blur-md border-white/20">
         <CardContent className="pt-6 text-center">
           <div className="animate-spin h-16 w-16 border-4 border-purple-400 border-t-transparent rounded-full mx-auto mb-6"></div>
           <h2 className="text-2xl font-bold text-white mb-2">Analyzing {channelName}...</h2>
-          <p className="text-gray-300 mb-4">
-            We're analyzing all your videos and comments. This usually takes 2-5 minutes.
-          </p>
-          <div className="space-y-2 text-left max-w-md mx-auto text-gray-400">
-            <p>✓ Fetching videos...</p>
-            <p>✓ Downloading comments...</p>
-            <p>⏳ Analyzing content with AI...</p>
-            <p className="text-gray-500">⏳ Generating insights...</p>
+
+          {progress?.status === 'completed' ? (
+            <div className="mb-4">
+              <p className="text-green-400 text-xl mb-2">✓ Analysis Complete!</p>
+              <p className="text-gray-300">Redirecting to dashboard...</p>
+            </div>
+          ) : progress?.totalVideos > 0 ? (
+            <div className="mb-4">
+              <p className="text-purple-300 text-xl mb-2">
+                {progress.processedVideos} of {progress.totalVideos} videos analyzed
+              </p>
+              <div className="w-full bg-gray-700 rounded-full h-3 mb-4">
+                <div
+                  className="bg-purple-500 h-3 rounded-full transition-all duration-500"
+                  style={{ width: `${progressPercentage}%` }}
+                ></div>
+              </div>
+              <p className="text-gray-300 text-sm truncate max-w-md mx-auto">
+                Currently analyzing: {progress.currentVideo}
+              </p>
+            </div>
+          ) : (
+            <p className="text-gray-300 mb-4">
+              Fetching your videos and comments...
+            </p>
+          )}
+
+          <div className="space-y-2 text-left max-w-md mx-auto text-gray-400 mt-6">
+            <p className={progress?.status === 'fetching' ? 'text-purple-300' : 'text-gray-500'}>
+              {progress?.status !== 'fetching' ? '✓' : '⏳'} Fetching videos
+            </p>
+            <p className={progress?.status === 'analyzing' ? 'text-purple-300' : 'text-gray-500'}>
+              {progress?.status === 'completed' ? '✓' : progress?.status === 'analyzing' ? '⏳' : ''} Analyzing content with AI
+            </p>
+            <p className={progress?.status === 'completed' ? 'text-green-400' : 'text-gray-500'}>
+              {progress?.status === 'completed' ? '✓' : '⏳'} Generating insights
+            </p>
           </div>
         </CardContent>
       </Card>
