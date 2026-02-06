@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Brain, Video, MessageSquare, TrendingUp, Sparkles, BarChart3, ArrowRight } from "lucide-react";
+import { Brain, Video, MessageSquare, TrendingUp, Sparkles, BarChart3, ArrowRight, Briefcase } from "lucide-react";
 import { VideoCarousel } from "@/components/dashboard/video-carousel";
 import { AudiencePulse } from "@/components/dashboard/audience-pulse";
 import Link from "next/link";
@@ -339,6 +339,31 @@ function DashboardContent() {
               <Link href="/performance">
                 <Button className="bg-purple-600 hover:bg-purple-700 gap-2">
                   View Analysis
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Brand Collaboration Signals CTA Card */}
+        <Card className="mb-8 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="bg-green-100 p-3 rounded-lg">
+                  <Briefcase className="h-8 w-8 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">Brand Collaboration Signals</h3>
+                  <p className="text-sm text-gray-600">
+                    Discover industries, brands, and content styles that attract sponsorships
+                  </p>
+                </div>
+              </div>
+              <Link href="/brand-collaboration">
+                <Button className="bg-green-600 hover:bg-green-700 gap-2">
+                  View Opportunities
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
