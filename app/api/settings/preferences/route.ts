@@ -1,141 +1,193 @@
-import { auth } from "@/app/api/auth/[...nextauth]/route"
-import User from "@/models/User"
-import connectDB from "@/lib/db/mongodb"
-import { NextResponse } from "next/server"
-import GeneratedIdea from "@/models/GeneratedIdea"
-import { emailQueue } from "@/lib/jobs/queue"
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/app/api/auth/[...nextauth]/route";
+import connectDB from "@/lib/db/mongodb";
+import User from "@/models/User";
 
-const ALLOWED_FREQUENCIES = new Set(["weekly", "biweekly", "monthly"])
-const ALLOWED_DAYS = new Set([
-  "sunday",
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-  "saturday",
-])
-const ALLOWED_IDEA_COUNTS = new Set([3, 5, 10])
-const TIME_REGEX = /^([01]\d|2[0-3]):[0-5]\d$/
-
-function normalizeStringArray(value: unknown) {
-  const arr =
-    Array.isArray(value)
-      ? value
-      : typeof value === "string"
-        ? value.split(",")
-        : []
-
-  return Array.from(
-    new Set(
-      arr
-        .map((v) => (typeof v === "string" ? v.trim() : ""))
-        .filter(Boolean)
-        .map((v) => v.slice(0, 80))
-    )
-  ).slice(0, 20)
-}
-
-function isValidTimeZone(tz: string) {
+export async function GET(request: NextRequest) {
   try {
-    if (typeof Intl !== "undefined" && "supportedValuesOf" in Intl) {
-      // @ts-expect-error - supportedValuesOf is not in TS lib yet
-      return Intl.supportedValuesOf("timeZone").includes(tz)
+    const session = await auth();
+
+    if (!session) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
-  } catch {
-    return false
+
+    const userEmail = session.user?.email;
+    if (!userEmail) {
+      return NextResponse.json(
+        { error: "User email not found in session" },
+        { status: 401 }
+      );
+    }
+
+    await connectDB();
+
+    const user = await User.findOne({ email: userEmail });
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "User profile not found. Please log in again." },
+        { status: 404 }
+      );
+    }
+
+    // Ensure settings object exists
+    if (!user.settings) {
+      user.settings = {
+        emailEnabled: false,
+        emailFrequency: "weekly",
+        emailDay: "sunday",
+        emailTime: "09:00",
+        timezone: "UTC",
+        ideaCount: 5,
+        preferences: {
+          focusAreas: [],
+          avoidTopics: [],
+          preferredFormats: [],
+        },
+      };
+      await user.save();
+    }
+
+    // Return user settings with defaults
+    return NextResponse.json({
+      success: true,
+      settings: {
+        emailEnabled: user.settings?.emailEnabled ?? false,
+        emailFrequency: user.settings?.emailFrequency ?? "weekly",
+        emailDay: user.settings?.emailDay ?? "sunday",
+        emailTime: user.settings?.emailTime ?? "09:00",
+        timezone: user.settings?.timezone ?? "UTC",
+        ideaCount: user.settings?.ideaCount ?? 5,
+        preferences: {
+          focusAreas: user.settings?.preferences?.focusAreas ?? [],
+          avoidTopics: user.settings?.preferences?.avoidTopics ?? [],
+          preferredFormats: user.settings?.preferences?.preferredFormats ?? [],
+        },
+      },
+      user: {
+        id: user._id.toString(),
+        email: user.email,
+        name: user.name || "User",
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching preferences:", error);
+    return NextResponse.json(
+      {
+        error: "Failed to load settings",
+        details: (error as Error).message,
+      },
+      { status: 500 }
+    );
   }
-  return true
 }
 
-function validateSettings(input: any) {
-  if (!input || typeof input !== "object") return null
+export async function POST(request: NextRequest) {
+  try {
+    const session = await auth();
 
-  const emailEnabled = Boolean(input.emailEnabled)
-  const emailFrequency = ALLOWED_FREQUENCIES.has(input.emailFrequency)
-    ? input.emailFrequency
-    : "weekly"
-  const emailDay = ALLOWED_DAYS.has(input.emailDay) ? input.emailDay : "sunday"
-  const emailTime = TIME_REGEX.test(input.emailTime) ? input.emailTime : "09:00"
-  const timezone =
-    typeof input.timezone === "string" && isValidTimeZone(input.timezone)
-      ? input.timezone
-      : "UTC"
-  const ideaCount = ALLOWED_IDEA_COUNTS.has(Number(input.ideaCount))
-    ? Number(input.ideaCount)
-    : 5
+    if (!session) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
 
-  const preferences = {
-    focusAreas: normalizeStringArray(input?.preferences?.focusAreas),
-    avoidTopics: normalizeStringArray(input?.preferences?.avoidTopics),
-    preferredFormats: normalizeStringArray(input?.preferences?.preferredFormats),
+    const userEmail = session.user?.email;
+    if (!userEmail) {
+      return NextResponse.json(
+        { error: "User email not found in session" },
+        { status: 401 }
+      );
+    }
+
+    await connectDB();
+
+    const body = await request.json();
+    const { settings } = body;
+
+    if (!settings) {
+      return NextResponse.json(
+        { error: "Settings data required" },
+        { status: 400 }
+      );
+    }
+
+    // Validate settings
+    if (
+      settings.ideaCount &&
+      ![3, 5, 10].includes(parseInt(settings.ideaCount))
+    ) {
+      return NextResponse.json(
+        { error: "Invalid idea count. Must be 3, 5, or 10." },
+        { status: 400 }
+      );
+    }
+
+    if (
+      settings.emailFrequency &&
+      !["weekly", "biweekly", "monthly"].includes(settings.emailFrequency)
+    ) {
+      return NextResponse.json(
+        { error: "Invalid frequency. Must be weekly, biweekly, or monthly." },
+        { status: 400 }
+      );
+    }
+
+    // Update user settings
+    const user = await User.findOneAndUpdate(
+      { email: userEmail },
+      {
+        $set: {
+          "settings.emailEnabled":
+            settings.emailEnabled !== undefined ? settings.emailEnabled : false,
+          "settings.emailFrequency":
+            settings.emailFrequency || "weekly",
+          "settings.emailDay": settings.emailDay || "sunday",
+          "settings.emailTime": settings.emailTime || "09:00",
+          "settings.timezone": settings.timezone || "UTC",
+          "settings.ideaCount": settings.ideaCount || 5,
+          "settings.preferences.focusAreas":
+            settings.preferences?.focusAreas || [],
+          "settings.preferences.avoidTopics":
+            settings.preferences?.avoidTopics || [],
+          "settings.preferences.preferredFormats":
+            settings.preferences?.preferredFormats || [],
+          "settings.updatedAt": new Date(),
+        },
+      },
+      { new: true, upsert: true }
+    );
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "Failed to update user settings" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Settings saved successfully",
+      settings: {
+        emailEnabled: user.settings?.emailEnabled ?? false,
+        emailFrequency: user.settings?.emailFrequency ?? "weekly",
+        emailDay: user.settings?.emailDay ?? "sunday",
+        emailTime: user.settings?.emailTime ?? "09:00",
+        timezone: user.settings?.timezone ?? "UTC",
+        ideaCount: user.settings?.ideaCount ?? 5,
+        preferences: {
+          focusAreas: user.settings?.preferences?.focusAreas ?? [],
+          avoidTopics: user.settings?.preferences?.avoidTopics ?? [],
+          preferredFormats: user.settings?.preferences?.preferredFormats ?? [],
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Error saving preferences:", error);
+    return NextResponse.json(
+      {
+        error: "Failed to save settings",
+        details: (error as Error).message,
+      },
+      { status: 500 }
+    );
   }
-
-  return {
-    emailEnabled,
-    emailFrequency,
-    emailDay,
-    emailTime,
-    timezone,
-    ideaCount,
-    preferences,
-  }
-}
-
-export async function GET() {
-  const session = await auth()
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
-  await connectDB()
-
-  const user = await User.findOne({ email: session.user.email })
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 })
-  }
-
-  const lastEmail = await GeneratedIdea.findOne({
-    userId: user._id,
-    emailStatus: "sent",
-  })
-    .sort({ emailSentAt: -1 })
-    .lean()
-
-  const queueCounts = await emailQueue.getJobCounts()
-
-  return NextResponse.json({
-    settings: user.settings,
-    emailStatus: {
-      lastSentAt: lastEmail?.emailSentAt || null,
-      queueCounts,
-    },
-  })
-}
-
-export async function POST(req: Request) {
-  const session = await auth()
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
-  await connectDB()
-
-  const body = await req.json()
-  const settings = validateSettings(body?.settings)
-  if (!settings) {
-    return NextResponse.json({ error: "Invalid settings" }, { status: 400 })
-  }
-
-  const user = await User.findOneAndUpdate(
-    { email: session.user.email },
-    { $set: { settings } },
-    { new: true }
-  )
-
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 })
-  }
-
-  return NextResponse.json({ success: true, settings: user.settings })
 }

@@ -77,7 +77,7 @@ export default function VideoDetailPage() {
     );
   }
 
-  if (!data || data.error) {
+  if (!data || !data.video) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 p-6">
         <div className="max-w-7xl mx-auto">
@@ -107,10 +107,10 @@ export default function VideoDetailPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Back Button */}
-        <Link href="/dashboard">
+        <Link href="/insights">
           <Button variant="ghost" className="mb-6">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Dashboard
+            Back
           </Button>
         </Link>
 

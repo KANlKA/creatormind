@@ -6,12 +6,22 @@ import { cn } from '@/lib/utils';
 import { MenuToggleIcon } from '@/components/ui/menu-toggle-icon';
 import { useScroll } from '@/hooks/use-scroll';
 import { HoverBorderGradient } from '@/components/ui/hover-border-gradient';
+import { ProfileDropdown } from '@/components/layout/profile-dropdown';
+import { useSession, signOut } from 'next-auth/react';
+import { usePathname } from 'next/navigation';
 
 export function Header() {
 	const [open, setOpen] = React.useState(false);
 	const scrolled = useScroll(10);
+	const { data: session } = useSession();
+	const pathname = usePathname();
 
-	const links = [
+	// Don't show header on auth pages
+	if (pathname?.startsWith('/auth')) {
+		return null;
+	}
+
+	const links = session?.user ? [
 		{
 			label: 'Dashboard',
 			href: '/dashboard',
@@ -24,7 +34,7 @@ export function Header() {
 			label: 'Ideas',
 			href: '/ideas',
 		},
-	];
+	] : [];
 
 	React.useEffect(() => {
 		if (open) {
@@ -78,15 +88,28 @@ export function Header() {
 							{link.label}
 						</Link>
 					))}
-					<Link href="/auth/signin">
-						<HoverBorderGradient
-							containerClassName="rounded-full"
-							as="button"
-							className="bg-black text-white flex items-center space-x-2"
-						>
-							<span>Sign In</span>
-						</HoverBorderGradient>
-					</Link>
+					{session?.user ? (
+						<>
+							<Button
+								variant="ghost"
+								onClick={() => signOut({ callbackUrl: '/' })}
+								className="text-white hover:bg-white/10 rounded-xl"
+							>
+								Logout
+							</Button>
+							<ProfileDropdown />
+						</>
+					) : (
+						<Link href="/auth/signin">
+							<HoverBorderGradient
+								containerClassName="rounded-full"
+								as="button"
+								className="bg-black text-white flex items-center space-x-2"
+							>
+								<span>Sign In</span>
+							</HoverBorderGradient>
+						</Link>
+					)}
 				</div>
 				<Button size="icon" variant="outline" onClick={() => setOpen(!open)} className="md:hidden text-white border-white hover:bg-white/10 rounded-xl">
 					<MenuToggleIcon open={open} className="size-5" duration={300} />
@@ -123,15 +146,30 @@ export function Header() {
 						))}
 					</div>
 					<div className="flex flex-col gap-2">
-						<Link href="/auth/signin" className="w-full flex justify-center">
-							<HoverBorderGradient
-								containerClassName="rounded-full w-full"
-								as="button"
-								className="bg-black text-white flex items-center justify-center space-x-2 w-full"
-							>
-								<span>Sign In</span>
-							</HoverBorderGradient>
-						</Link>
+						{session?.user ? (
+							<>
+								<div className="flex justify-center mb-2">
+									<ProfileDropdown />
+								</div>
+								<Button
+									variant="ghost"
+									onClick={() => signOut({ callbackUrl: '/' })}
+									className="w-full text-white hover:bg-white/10 rounded-xl"
+								>
+									Logout
+								</Button>
+							</>
+						) : (
+							<Link href="/auth/signin" className="w-full flex justify-center">
+								<HoverBorderGradient
+									containerClassName="rounded-full w-full"
+									as="button"
+									className="bg-black text-white flex items-center justify-center space-x-2 w-full"
+								>
+									<span>Sign In</span>
+								</HoverBorderGradient>
+							</Link>
+						)}
 					</div>
 				</div>
 			</div>
