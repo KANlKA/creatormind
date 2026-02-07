@@ -348,30 +348,63 @@ function analyzeForBrandCollaboration(
 
   const avgEngagement = ((totalEngagement / videos.length) * 100).toFixed(2);
 
+  // Map formats to brand appeal insights
+  const formatAppealMap: Record<string, string> = {
+    "tutorial": "High sponsorship value - tutorials naturally integrate product demonstrations",
+    "review": "Premium brand appeal - review content drives purchase decisions",
+    "vlog": "Strong lifestyle brand fit - vlogs showcase products in authentic settings",
+    "educational": "EdTech and tool sponsorships - educational content builds authority",
+    "entertainment": "Mass market appeal - entertainment content reaches broad audiences",
+    "how-to": "Solution-focused sponsors - how-to content attracts tool and service brands",
+    "listicle": "Multiple brand opportunities - list format allows diverse product features",
+  };
+
+  // Map tones to brand alignment
+  const toneAppealMap: Record<string, string> = {
+    "professional": "B2B and enterprise brands - professional tone builds credibility",
+    "casual": "Consumer lifestyle brands - casual tone feels authentic and relatable",
+    "humorous": "Entertainment and youth brands - humor drives viral potential",
+    "informative": "Educational and software brands - informative tone showcases expertise",
+    "inspirational": "Wellness and personal development brands - inspirational content motivates action",
+  };
+
+  // Map hooks to sponsorship value
+  const hookAppealMap: Record<string, string> = {
+    "question": "Problem-solving sponsors - questions position products as solutions",
+    "bold-claim": "Premium brand confidence - bold claims work for established products",
+    "curiosity": "Discovery-focused brands - curiosity hooks drive exploration",
+    "shock": "Attention-grabbing sponsors - shock value works for disruptor brands",
+    "story": "Emotional brand connection - stories create memorable associations",
+  };
+
+  const topFormat = Object.entries(formatCounts).sort((a, b) => b[1] - a[1])[0];
+  const topTone = Object.entries(toneCounts).sort((a, b) => b[1] - a[1])[0];
+  const topHook = Object.entries(hookCounts).sort((a, b) => b[1] - a[1])[0];
+
   const contentStyles = [
     {
       style: "Most Common Format",
-      metric: Object.entries(formatCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A",
-      value: `${Object.entries(formatCounts).sort((a, b) => b[1] - a[1])[0]?.[1] || 0} videos`,
-      sponsorshipAppeal: "Brands prefer consistent, proven content formats",
+      metric: topFormat?.[0] || "N/A",
+      value: `${topFormat?.[1] || 0} videos`,
+      sponsorshipAppeal: formatAppealMap[topFormat?.[0]?.toLowerCase()] || "Consistent format builds brand trust and integration opportunities",
     },
     {
       style: "Dominant Tone",
-      metric: Object.entries(toneCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A",
-      value: `${Object.entries(toneCounts).sort((a, b) => b[1] - a[1])[0]?.[1] || 0} videos`,
-      sponsorshipAppeal: "Tone consistency builds brand trust",
+      metric: topTone?.[0] || "N/A",
+      value: `${topTone?.[1] || 0} videos`,
+      sponsorshipAppeal: toneAppealMap[topTone?.[0]?.toLowerCase()] || "Tone consistency helps brands assess cultural fit",
     },
     {
       style: "Top Hook Strategy",
-      metric: Object.entries(hookCounts).sort((a, b) => b[1] - a[1])[0]?.[0]?.replace("-", " ") || "N/A",
-      value: `${Object.entries(hookCounts).sort((a, b) => b[1] - a[1])[0]?.[1] || 0} videos`,
-      sponsorshipAppeal: "Strong hooks increase sponsored content performance",
+      metric: topHook?.[0]?.replace("-", " ") || "N/A",
+      value: `${topHook?.[1] || 0} videos`,
+      sponsorshipAppeal: hookAppealMap[topHook?.[0]?.toLowerCase()] || "Strong hooks increase sponsored content performance and retention",
     },
     {
       style: "Engagement Rate",
       metric: `${avgEngagement}%`,
       value: `Across ${videos.length} videos`,
-      sponsorshipAppeal: "High engagement attracts premium brand partnerships",
+      sponsorshipAppeal: parseFloat(avgEngagement) > 5 ? "Premium brand tier - high engagement commands top sponsorship rates" : parseFloat(avgEngagement) > 2 ? "Growing brand interest - solid engagement attracts mid-tier sponsors" : "Building foundation - focus on engagement before pursuing major sponsors",
     },
   ];
 
@@ -470,17 +503,36 @@ function analyzeForBrandCollaboration(
     demographicIndicators.push(`Professional segments: ${profList}`);
   }
 
+  // Supplement skill analysis with video complexity
+  const videoComplexityCounts: Record<string, number> = {};
+  videos.forEach((video) => {
+    const complexity = video.analysis?.complexity?.toLowerCase() || "";
+    if (complexity.includes("beginner") || complexity.includes("basic") || complexity.includes("introductory")) {
+      videoComplexityCounts.beginner = (videoComplexityCounts.beginner || 0) + 1;
+    } else if (complexity.includes("advanced") || complexity.includes("expert") || complexity.includes("professional")) {
+      videoComplexityCounts.advanced = (videoComplexityCounts.advanced || 0) + 1;
+    } else if (complexity.includes("intermediate") || complexity.includes("moderate")) {
+      videoComplexityCounts.intermediate = (videoComplexityCounts.intermediate || 0) + 1;
+    }
+  });
+
+  // Combine comment-based and video-based skill indicators
+  const combinedSkillIndicators = { ...skillIndicators };
+  Object.entries(videoComplexityCounts).forEach(([level, count]) => {
+    combinedSkillIndicators[level] = (combinedSkillIndicators[level] || 0) + count;
+  });
+
   // Add skill level distribution
-  const totalSkillMentions = Object.values(skillIndicators).reduce((sum, count) => sum + count, 0);
+  const totalSkillMentions = Object.values(combinedSkillIndicators).reduce((sum, count) => sum + count, 0);
   if (totalSkillMentions > 0) {
-    const skillDist = Object.entries(skillIndicators)
+    const skillDist = Object.entries(combinedSkillIndicators)
       .sort((a, b) => b[1] - a[1])
       .map(([level, count]) => {
         const pct = ((count / totalSkillMentions) * 100).toFixed(0);
         return `${level} ${pct}%`;
       })
       .join(", ");
-    demographicIndicators.push(`Skill distribution: ${skillDist} (from comment analysis)`);
+    demographicIndicators.push(`Skill distribution: ${skillDist} (from video complexity + comments)`);
   }
 
   // Add engagement quality indicator
