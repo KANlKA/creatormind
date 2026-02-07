@@ -3,6 +3,7 @@ import Video from "@/models/Video";
 import Comment from "@/models/Comment";
 import CreatorInsight from "@/models/CreatorInsight";
 import GeneratedIdea from "@/models/GeneratedIdea";
+import { generateHeuristicContent } from "@/lib/content/heuristic-generator";
 import mongoose from "mongoose";
 import { generateJSON } from "./gemini";
 
@@ -34,7 +35,9 @@ export async function generateVideoIdeas(userId: string) {
     totalVideos: allVideos.length,
     avgEngagement: (avgEngagement * 100).toFixed(1),
     bestFormat: insights.patterns.bestFormats[0]?.format,
-    bestFormatEngagement: (insights.patterns.bestFormats[0]?.avgEngagement * 100).toFixed(1),
+    bestFormatEngagement: (
+      insights.patterns.bestFormats[0]?.avgEngagement * 100
+    ).toFixed(1),
     bestTopics: insights.patterns.bestTopics.slice(0, 5).map((t) => ({
       topic: t.topic,
       engagement: (t.avgEngagement * 100).toFixed(1),
@@ -60,7 +63,7 @@ Creator Profile:
 - Total Videos: ${context.totalVideos}
 - Average Engagement: ${context.avgEngagement}%
 - Best Format: ${context.bestFormat} (${context.bestFormatEngagement}% engagement)
-- Best Topics: ${context.bestTopics.map(t => `${t.topic} (${t.engagement}%)`).join(", ")}
+- Best Topics: ${context.bestTopics.map((t) => `${t.topic} (${t.engagement}%)`).join(", ")}
 - Best Tone: ${context.bestTone}
 - Audience Intent: ${context.audienceIntent}
 - Audience Skill Level: ${context.skillLevel}
@@ -144,6 +147,7 @@ Structure EXACTLY like:
 
   try {
     const ideas = await generateJSON(prompt);
+    console.log("AI RAW RESPONSE:", ideas);
 
     // Validate and ensure we have 5 ideas
     if (!Array.isArray(ideas) || ideas.length === 0) {
@@ -151,8 +155,8 @@ Structure EXACTLY like:
     }
 
     // Clean up evidence types - remove any invalid types
-    const validEvidenceTypes = ['comment', 'performance', 'trend'];
-    const cleanedIdeas = ideas.slice(0, 5).map(idea => {
+    const validEvidenceTypes = ["comment", "performance", "trend"];
+    const cleanedIdeas = ideas.slice(0, 5).map((idea) => {
       // Filter evidence to only include valid types
       const cleanedEvidence = (idea.evidence || [])
         .filter((ev: any) => validEvidenceTypes.includes(ev.type))
@@ -160,12 +164,21 @@ Structure EXACTLY like:
           type: ev.type,
           text: ev.text,
           ...(ev.videoId && { videoId: ev.videoId }),
-          ...(ev.commentId && { commentId: ev.commentId })
+          ...(ev.commentId && { commentId: ev.commentId }),
         }));
+
+      const fallbackContent = generateHeuristicContent(idea);
 
       return {
         ...idea,
-        evidence: cleanedEvidence
+        evidence: cleanedEvidence,
+
+        contentPack: {
+          hashtags: idea.contentPack?.hashtags || fallbackContent.hashtags,
+          titleVariants:
+            idea.contentPack?.titleVariants || fallbackContent.titleVariants,
+          script: idea.contentPack?.script || fallbackContent.script,
+        },
       };
     });
 
