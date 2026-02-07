@@ -1,12 +1,29 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Brain, TrendingUp, Lightbulb, Mail } from "lucide-react";
+import dynamic from "next/dynamic";
+
+const Orb = dynamic(() => import("@/components/Orb"), { ssr: false });
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-black relative overflow-hidden">
+      {/* Animated Orb Background */}
+      <div className="absolute inset-0 flex items-start justify-center pt-20" style={{ pointerEvents: 'none' }}>
+        <div style={{ width: '600px', height: '600px', position: 'relative', pointerEvents: 'auto' }}>
+          <Orb
+            hoverIntensity={2}
+            rotateOnHover
+            hue={0}
+            forceHoverState={false}
+            backgroundColor="#000000"
+          />
+        </div>
+      </div>
       {/* Header */}
-      <header className="container mx-auto px-4 py-6">
+      <header className="container mx-auto px-4 py-6 relative z-10">
         <nav className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Brain className="h-8 w-8 text-purple-400" />
@@ -21,7 +38,7 @@ export default function HomePage() {
       </header>
 
       {/* Hero Section */}
-      <main className="container mx-auto px-4 py-20">
+      <main className="container mx-auto px-4 py-20 relative z-10">
         <div className="text-center max-w-4xl mx-auto">
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
             Know <span className="text-purple-400">exactly</span> what to create next

@@ -84,9 +84,23 @@ export async function POST(request: NextRequest) {
     // Regenerate insights
     const insights = await generateCreatorInsights(user._id.toString());
 
+    // Get overall stats (same as GET endpoint)
+    const totalVideos = await Video.countDocuments({ userId: user._id });
+    const videos = await Video.find({ userId: user._id }).select(
+      "engagementRate views"
+    );
+
+    const avgEngagement =
+      videos.reduce((sum, v) => sum + v.engagementRate, 0) / videos.length;
+    const totalViews = videos.reduce((sum, v) => sum + v.views, 0);
+
     return NextResponse.json({
-      success: true,
       insights,
+      stats: {
+        totalVideos,
+        avgEngagement,
+        totalViews,
+      },
     });
   } catch (error) {
     console.error("Error regenerating insights:", error);
