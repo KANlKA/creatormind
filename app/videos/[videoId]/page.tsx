@@ -42,6 +42,7 @@ interface VideoData {
     intents: [string, number][];
     topTopics: [string, number][];
   };
+  error?: string;
 }
 
 export default function VideoDetailPage() {

@@ -36,6 +36,36 @@ type Settings = {
   };
 };
 
+
+type EmailLog = {
+  id: string;
+  subject: string;
+  recipientEmail: string;
+  status: "sent" | "delivered" | "opened" | "clicked" | "bounced" | "failed";
+  ideaCount: number;
+  sentAt: string;
+  deliveredAt?: string;
+  openedAt?: string;
+  failureReason?: string;
+};
+
+type SyncStatus = {
+  syncStatus: string;
+  lastSyncedAt: string;
+  channelName?: string;
+  isConnected: boolean;
+};
+
+const joinList = (values?: string[]) =>
+  values && values.length > 0 ? values.join(", ") : "";
+
+const splitList = (value: string) =>
+  value
+    .split(",")
+    .map((v) => v.trim())
+    .filter(Boolean);
+
+
 export default function SettingsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -45,6 +75,13 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [historyPage, setHistoryPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [sending, setSending] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [disconnectMessage, setDisconnectMessage] = useState<string | null>(null);
+  const [emailHistory, setEmailHistory] = useState<EmailLog[]>([]);
+  const [syncData, setSyncData] = useState<SyncStatus | null>(null);
   const [alertMessage, setAlertMessage] = useState<{
     type: "success" | "error" | "info";
     message: string;
@@ -151,19 +188,61 @@ export default function SettingsPage() {
       setLoading(false);
     }
   };
-
-  const splitList = (value: string) =>
-    value
-      .split(",")
-      .map((v) => v.trim())
-      .filter(Boolean);
-
-  const joinList = (values?: string[]) =>
-    values?.length ? values.join(", ") : "";
+    useEffect(() => {
+      const loadData = async () => {
+        try {
+          const [prefRes, historyRes, syncRes] = await Promise.all([
+            fetch("/api/settings/preferences"),
+            fetch("/api/email/history?limit=10&page=1"),
+            fetch("/api/youtube/history"),
+          ]);
+  
+          if (prefRes.ok) {
+            const prefData = await prefRes.json();
+            setSettings(prefData.settings);
+          }
+  
+          if (historyRes.ok) {
+            const historyData = await historyRes.json();
+            setEmailHistory(historyData.emails);
+            setTotalPages(historyData.pagination.pages);
+          }
+  
+          if (syncRes.ok) {
+            const syncData = await syncRes.json();
+            setSyncData(syncData);
+          }
+        } catch (error) {
+          console.error("Error loading settings:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      loadData();
+    }, []);
+  
+    // Load email history for different page
+  useEffect(() => {
+      const loadHistory = async () => {
+        try {
+          const res = await fetch(
+            `/api/email/history?limit=10&page=${historyPage}`
+          );
+          if (res.ok) {
+            const data = await res.json();
+            setEmailHistory(data.emails);
+          }
+        } catch (error) {
+          console.error("Error loading email history:", error);
+        }
+      };
+  
+      loadHistory();
+    }, [historyPage]);
 
   const handleSaveSettings = async () => {
     if (!editedSettings) return;
-
     setSaving(true);
     try {
       const response = await fetch("/api/settings/preferences", {
@@ -211,6 +290,57 @@ export default function SettingsPage() {
     setIsEditMode(false);
   };
 
+  const handleDisconnectChannel = async () => {
+    if (
+      !confirm(
+        "Are you sure you want to disconnect your YouTube channel? You'll need to reconnect to continue using the app."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/youtube/disconnect", {
+        method: "POST",
+      });
+
+      if (res.ok) {
+        setDisconnectMessage("Channel disconnected successfully");
+        setSyncData({
+          syncStatus: "disconnected",
+          lastSyncedAt: "",
+          channelName: "",
+          isConnected: false,
+        });
+        setTimeout(() => {
+          setDisconnectMessage(null);
+          router.push("/dashboard");
+        }, 2000);
+      }
+    } catch (error) {
+      setDisconnectMessage("Error disconnecting channel");
+    }
+  };
+
+  const getStatusColor = (
+    status: "sent" | "delivered" | "opened" | "clicked" | "bounced" | "failed"
+  ) => {
+      switch (status) {
+        case "delivered":
+          return "bg-blue-100 text-blue-800";
+        case "opened":
+          return "bg-green-100 text-green-800";
+        case "clicked":
+          return "bg-green-100 text-green-800";
+        case "bounced":
+          return "bg-orange-100 text-orange-800";
+        case "failed":
+          return "bg-red-100 text-red-800";
+        default:
+          return "bg-gray-100 text-gray-800";
+      }
+    };
+
   // Show loading
   if (loading) {
     return (
@@ -252,7 +382,7 @@ export default function SettingsPage() {
       </div>
     );
   }
-
+  
   // Show error state
   if (!settings || !editedSettings) {
     return (
@@ -673,6 +803,211 @@ export default function SettingsPage() {
                 </div>
               </>
             )}
+          </CardContent>
+        </Card>
+        {/* Email History */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5" />
+              Email History
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {emailHistory.length === 0 ? (
+              <div className="text-center py-8">
+                <Mail className="h-12 w-12 text-gray-300 mx-auto mb-2" />
+                <p className="text-gray-600">No emails sent yet</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left py-3 px-3 font-semibold">
+                        Status
+                      </th>
+                      <th className="text-left py-3 px-3 font-semibold">
+                        Subject
+                      </th>
+                      <th className="text-left py-3 px-3 font-semibold">
+                        Ideas Sent
+                      </th>
+                      <th className="text-left py-3 px-3 font-semibold">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {emailHistory.map((email) => (
+                      <tr key={email.id} className="border-b hover:bg-slate-50">
+                        <td className="py-3 px-3">
+                          <Badge className={getStatusColor(email.status)}>
+                            {email.status.charAt(0).toUpperCase() +
+                              email.status.slice(1)}
+                          </Badge>
+                        </td>
+                        <td className="py-3 px-3">
+                          <div>
+                            <p className="font-medium">{email.subject}</p>
+                            <p className="text-xs text-gray-500">
+                              {email.recipientEmail}
+                            </p>
+                          </div>
+                        </td>
+                        <td className="py-3 px-3">{email.ideaCount}</td>
+                        <td className="py-3 px-3">
+                          <div>
+                            <p>
+                              {new Date(email.sentAt).toLocaleDateString()}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {new Date(email.sentAt).toLocaleTimeString()}
+                            </p>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex justify-center gap-2 mt-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={historyPage === 1}
+                      onClick={() =>
+                        setHistoryPage(Math.max(1, historyPage - 1))
+                      }
+                    >
+                      Previous
+                    </Button>
+                    <span className="flex items-center px-3 text-sm">
+                      Page {historyPage} of {totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={historyPage === totalPages}
+                      onClick={() =>
+                        setHistoryPage(
+                          Math.min(totalPages, historyPage + 1)
+                        )
+                      }
+                    >
+                      Next
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Channel Management */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <SettingsIcon className="h-5 w-5" />
+              Channel Management
+            </CardTitle>
+          </CardHeader>
+
+          <CardContent className="space-y-4">
+            {/* Status box */}
+            <div className="p-4 bg-slate-50 rounded-lg">
+              <p className="text-sm text-gray-700 mb-2">
+                <span className="font-medium">Sync Status:</span>{" "}
+                {syncData?.syncStatus || "unknown"}
+              </p>
+
+              <p className="text-sm text-gray-700">
+                <span className="font-medium">Last Synced:</span>{" "}
+                {syncData?.lastSyncedAt
+                  ? new Date(syncData.lastSyncedAt).toLocaleString()
+                  : "Never"}
+              </p>
+
+              {/* Disconnected text — shown ONLY when disconnected */}
+              {!syncData?.isConnected && (
+                <p className="text-sm text-gray-700 mt-3">
+                  <strong>Your YouTube channel is disconnected.</strong>{" "}
+                  Connect again to keep using CreatorMind and receive personalized video
+                  ideas in your emails.
+                </p>
+              )}
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex gap-2 flex-wrap">
+              {/* Re-sync button (always visible) */}
+              <Button
+                onClick={async () => {
+                  await fetch("/api/youtube/sync", { method: "POST" });
+                  const res = await fetch("/api/youtube/history");
+                  const data = await res.json();
+                  setSyncData(data);
+                }}
+                className="bg-purple-600 hover:bg-purple-700"
+              >
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Re-sync Channel
+              </Button>
+
+              {/* Toggle Connect / Disconnect button */}
+              <Button
+                onClick={async () => {
+                  if (syncData?.isConnected) {
+                    // DISCONNECT
+                    if (
+                      confirm(
+                        "Are you sure you want to disconnect your YouTube channel?"
+                      )
+                    ) {
+                      await fetch("/api/youtube/disconnect", { method: "POST" });
+                      alert("Channel disconnected");
+
+                      // 🔥 update UI immediately
+                      setSyncData((prev) => ({
+                        ...(prev as SyncStatus),
+                        isConnected: false,
+                        syncStatus: "disconnected",
+                      }));
+                    }
+                  } else {
+                    // CONNECT
+                    await fetch("/api/youtube/connect", { method: "POST" });
+                    alert("Channel connected");
+
+                    // 🔥 update UI immediately
+                    setSyncData((prev) => ({
+                      ...(prev as SyncStatus),
+                      isConnected: true,
+                      syncStatus: "connected",
+                      lastSyncedAt: new Date().toISOString(),
+                    }));
+                  }
+                }}
+                variant="outline"
+                className={
+                  syncData?.isConnected
+                    ? "text-red-600 hover:text-red-700 border-red-200"
+                    : "text-purple-600 hover:text-purple-700 border-purple-200"
+                }
+              >
+                {syncData?.isConnected ? (
+                  <>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Disconnect Channel
+                  </>
+                ) : (
+                  <>
+                    <RotateCcw className="mr-2 h-4 w-4" />
+                    Connect Channel
+                  </>
+                )}
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>

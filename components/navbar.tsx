@@ -6,6 +6,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { Brain, BarChart3, Lightbulb } from "lucide-react";
 import { ProfileDropdown } from "@/components/layout/profile-dropdown";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
+import { LayoutDashboard, TrendingUp} from "lucide-react";
 
 export function Navbar() {
   const session = useSession();

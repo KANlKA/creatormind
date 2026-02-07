@@ -1,34 +1,40 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { CTA } from "@/components/ui/cta";
 import { ArrowRight, Brain, TrendingUp, Lightbulb, Mail } from "lucide-react";
 import dynamic from "next/dynamic";
+import BlurText from "@/components/ui/blur-text";
 
-const Orb = dynamic(() => import("@/components/Orb"), { ssr: false });
+const Aurora = dynamic(() => import("@/components/Aurora"), { ssr: false });
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
-      {/* Animated Orb Background */}
-      <div className="absolute inset-0 flex items-start justify-center pt-20" style={{ pointerEvents: 'none' }}>
-        <div style={{ width: '600px', height: '600px', position: 'relative', pointerEvents: 'auto' }}>
-          <Orb
-            hoverIntensity={2}
-            rotateOnHover
-            hue={0}
-            forceHoverState={false}
-            backgroundColor="#000000"
-          />
-        </div>
+      {/* Aurora Background */}
+      <div className="absolute top-0 left-0 right-0 z-0" style={{ height: '900px' }}>
+        <Aurora
+          colorStops={["#7306E0", "#A149E9", "#A8F5F5"]}
+          blend={0.5}
+          amplitude={1.0}
+          speed={1}
+        />
       </div>
       {/* Header */}
       <header className="container mx-auto px-4 py-6 relative z-10">
         <nav className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Brain className="h-8 w-8 text-purple-400" />
+          <Link href="/" className="flex items-center gap-3">
+            <Image
+              src="/logo.png"
+              alt="CreatorMind Logo"
+              width={56}
+              height={56}
+              className="object-contain"
+            />
             <span className="text-2xl font-bold text-white">CreatorMind</span>
-          </div>
+          </Link>
           <Link href="/auth/signin">
             <Button variant="outline" className="text-white border-white hover:bg-white/10">
               Sign In
@@ -40,16 +46,33 @@ export default function HomePage() {
       {/* Hero Section */}
       <main className="container mx-auto px-4 py-20 relative z-10">
         <div className="text-center max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
-            Know <span className="text-purple-400">exactly</span> what to create next
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-300 mb-8">
-            AI-powered insights from YOUR videos and audience.
-            <br />
-            No guessing. No trends. Just data-driven ideas.
-          </p>
+          <div className="mb-4">
+            <BlurText
+              text="Know exactly what to create next"
+              delay={50}
+              animateBy="words"
+              direction="top"
+              className="text-3xl md:text-5xl font-bold text-white justify-center"
+            />
+          </div>
+          <div className="mb-8 space-y-2">
+            <BlurText
+              text="AI-powered insights from YOUR videos and audience."
+              delay={30}
+              animateBy="words"
+              direction="top"
+              className="text-xl md:text-2xl text-gray-300 justify-center"
+            />
+            <BlurText
+              text="No guessing. No trends. Just data-driven ideas."
+              delay={30}
+              animateBy="words"
+              direction="top"
+              className="text-xl md:text-2xl text-gray-300 justify-center"
+            />
+          </div>
           <Link href="/auth/signin">
-            <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-white text-lg px-8 py-6">
+            <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-white text-lg px-3 py-4">
               Connect Your YouTube Channel
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
@@ -58,7 +81,7 @@ export default function HomePage() {
         </div>
 
         {/* Features */}
-        <div className="grid md:grid-cols-3 gap-8 mt-20">
+        <div className="grid md:grid-cols-3 gap-14 mt-20">
           <FeatureCard
             icon={<Brain className="h-10 w-10 text-purple-400" />}
             title="Deep Analysis"
@@ -88,17 +111,16 @@ export default function HomePage() {
         </div>
 
         {/* CTA */}
-        <div className="mt-32 text-center bg-purple-900/30 backdrop-blur-sm rounded-3xl p-12">
-          <h2 className="text-4xl font-bold text-white mb-4">Ready to stop guessing?</h2>
-          <p className="text-xl text-gray-300 mb-8">
-            Join creators who know exactly what their audience wants.
-          </p>
-          <Link href="/auth/signin">
-            <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-white text-lg px-8 py-6">
-              Get Started Free
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </Link>
+        <div className="mt-32">
+          <CTA
+            variant="solid"
+            title="Ready to stop guessing?"
+            description="Join creators who know exactly what their audience wants."
+            primaryAction={{
+              label: "Get Started Free",
+              href: "/auth/signin"
+            }}
+          />
         </div>
       </main>
 
