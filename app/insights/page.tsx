@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { generateGeoRecommendations } from "@/lib/content/geo-recommendation";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -75,6 +76,7 @@ export default function InsightsPage() {
   }
 
   const { insights: creatorInsights, stats } = insights;
+  const geoRecommendations = generateGeoRecommendations(creatorInsights);
 
   return (
     <div className="min-h-screen bg-slate-50 p-6">
@@ -152,7 +154,9 @@ export default function InsightsPage() {
                           #{i + 1}
                         </Badge>
                         <div>
-                          <p className="font-medium capitalize">{format.format}</p>
+                          <p className="font-medium capitalize">
+                            {format.format}
+                          </p>
                           <p className="text-sm text-gray-600">
                             {format.count} videos
                           </p>
@@ -165,7 +169,7 @@ export default function InsightsPage() {
                         <p className="text-xs text-gray-600">avg engagement</p>
                       </div>
                     </div>
-                  )
+                  ),
                 )}
               </div>
             </div>
@@ -174,8 +178,9 @@ export default function InsightsPage() {
             <div>
               <h3 className="font-semibold mb-3 text-lg">Best Topics</h3>
               <div className="space-y-2">
-                {creatorInsights.patterns.bestTopics.slice(0, 5).map(
-                  (topic: any, i: number) => (
+                {creatorInsights.patterns.bestTopics
+                  .slice(0, 5)
+                  .map((topic: any, i: number) => (
                     <div
                       key={i}
                       className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200"
@@ -198,8 +203,7 @@ export default function InsightsPage() {
                         <p className="text-xs text-gray-600">avg engagement</p>
                       </div>
                     </div>
-                  )
-                )}
+                  ))}
               </div>
             </div>
 
@@ -218,7 +222,7 @@ export default function InsightsPage() {
                         {(tone.avgEngagement * 100).toFixed(1)}%
                       </p>
                     </div>
-                  )
+                  ),
                 )}
               </div>
             </div>
@@ -230,7 +234,9 @@ export default function InsightsPage() {
                 Best Upload Time
               </h3>
               <div className="p-6 bg-yellow-50 rounded-lg border border-yellow-200 text-center">
-                <p className="text-lg mb-2">Your videos perform best when uploaded on:</p>
+                <p className="text-lg mb-2">
+                  Your videos perform best when uploaded on:
+                </p>
                 <p className="text-3xl font-bold text-yellow-700 capitalize">
                   {creatorInsights.patterns.bestUploadTimes.dayOfWeek}s
                 </p>
@@ -239,6 +245,25 @@ export default function InsightsPage() {
                 </p>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Geography Opportunities */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Audience Geography Opportunities</CardTitle>
+          </CardHeader>
+
+          <CardContent className="space-y-3">
+            {geoRecommendations.map((geo: any, i: number) => (
+              <div key={i} className="p-4 bg-slate-50 rounded-lg border">
+                <p className="font-semibold">{geo.country}</p>
+                <p className="text-sm text-gray-600">{geo.reason}</p>
+                <p className="text-xs text-gray-400">
+                  Confidence: {(geo.confidence * 100).toFixed(0)}%
+                </p>
+              </div>
+            ))}
           </CardContent>
         </Card>
 
@@ -331,7 +356,9 @@ export default function InsightsPage() {
             {/* Confusion Areas */}
             {creatorInsights.commentThemes.confusionAreas.length > 0 && (
               <div>
-                <h3 className="font-semibold mb-3 text-lg">❓ Confusion Areas</h3>
+                <h3 className="font-semibold mb-3 text-lg">
+                  ❓ Confusion Areas
+                </h3>
                 <div className="space-y-2">
                   {creatorInsights.commentThemes.confusionAreas.map(
                     (area: any, i: number) => (
@@ -344,7 +371,7 @@ export default function InsightsPage() {
                           {area.mentions} confused viewers
                         </Badge>
                       </div>
-                    )
+                    ),
                   )}
                 </div>
               </div>
@@ -353,7 +380,9 @@ export default function InsightsPage() {
             {/* Praise Patterns */}
             {creatorInsights.commentThemes.praisePatterns.length > 0 && (
               <div>
-                <h3 className="font-semibold mb-3 text-lg">💚 What They Love</h3>
+                <h3 className="font-semibold mb-3 text-lg">
+                  💚 What They Love
+                </h3>
                 <div className="space-y-2">
                   {creatorInsights.commentThemes.praisePatterns.map(
                     (pattern: any, i: number) => (
@@ -366,7 +395,7 @@ export default function InsightsPage() {
                           {pattern.mentions} praises
                         </Badge>
                       </div>
-                    )
+                    ),
                   )}
                 </div>
               </div>
