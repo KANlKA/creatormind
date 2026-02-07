@@ -70,7 +70,7 @@ export function VideoCarousel() {
               </div>
 
               <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-3 text-white text-sm">
-                <p className="font-semibold mb-2">Click to view comment analysis</p>
+                <p className="font-semibold mb-2">Click to view video analysis</p>
                 <p>{video.views.toLocaleString()} views</p>
                 <p>
                   {(

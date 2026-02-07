@@ -371,13 +371,6 @@ function DashboardContent() {
           </CardContent>
         </Card>
 
-        {/* Video Carousel */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Your Videos</h2>
-          <VideoCarousel />
-        </div>
-        <AudiencePulse />
-
         {/* Top Insights */}
         <Card className="mb-8">
           <CardHeader>

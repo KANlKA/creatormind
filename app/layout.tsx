@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Navbar } from "@/components/navbar";
+import { ProfileDropdown } from "@/components/layout/profile-dropdown";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,6 +23,10 @@ export default function RootLayout({
         <Providers>
           <Navbar />
           {children}
+          {/* Profile Dropdown available globally */}
+          <div className="hidden">
+            <ProfileDropdown />
+          </div>
         </Providers>
       </body>
     </html>
