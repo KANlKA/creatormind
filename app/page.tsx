@@ -5,7 +5,7 @@ import { useScroll, useTransform } from "motion/react";
 import React from "react";
 import { GoogleGeminiEffect } from "@/components/ui/google-gemini-effect";
 import { HeroSection } from "@/components/ui/hero-section";
-import { TestimonialSection } from "@/components/ui/testimonial";
+import { TestimonialsSection } from "@/components/ui/testimonials-with-marquee";
 import { ContactUs } from "@/components/ui/contact-us";
 import { AnimatedFeatures } from "@/components/ui/animated-features";
 
@@ -41,58 +41,85 @@ export default function HomePage() {
           </div>
 
           {/* Animated Feature Cards Section */}
-          <div className="mt-80 max-w-6xl mx-auto pointer-events-auto">
+          <div className="mt-[450px] max-w-6xl mx-auto pointer-events-auto">
             <AnimatedFeatures />
           </div>
 
-          <div className="mt-64 text-center max-w-6xl mx-auto pointer-events-auto">
-            <h2 className="text-4xl font-bold text-white mb-12">How It Works</h2>
-            <div className="grid md:grid-cols-4 gap-6">
-              <Step number={1} title="Connect" description="Link your YouTube channel in one click" />
-              <Step number={2} title="Analyze" description="We study all your videos and comments" />
-              <Step number={3} title="Discover" description="See what's working and what's not" />
-              <Step number={4} title="Create" description="Get weekly ideas with proven potential" />
-            </div>
-          </div>
+          {/* MASSIVE SCROLL GAP BEFORE TESTIMONIALS */}
+          <div className="h-[40vh] w-full" />
 
-          <div className="mt-48 max-w-6xl mx-auto pointer-events-auto">
-            <TestimonialSection
+          {/* Testimonials */}
+          <div className="max-w-2xl mx-auto pointer-events-auto">
+            <TestimonialsSection
+              title="Trusted by creators worldwide"
+              description=""
               testimonials={[
                 {
-                  name: "Sarah Johnson",
-                  role: "Tech YouTuber • 250K Subscribers",
-                  content: "CreatorMind helped me identify what my audience really wanted. My engagement increased by 40% in just two months!",
-                  rating: 5,
+                  author: {
+                    name: "Sarah Johnson",
+                    handle: "@sarahtech",
+                    avatar:
+                      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face",
+                  },
+                  text:
+                    "CreatorMind helped me identify what my audience really wanted. My engagement increased by 40% in just two months!",
                 },
                 {
-                  name: "Mike Chen",
-                  role: "Gaming Creator • 180K Subscribers",
-                  content: "The weekly video ideas are spot-on. It's like having a data analyst on my team who actually understands my niche.",
-                  rating: 5,
+                  author: {
+                    name: "Mike Chen",
+                    handle: "@mikegaming",
+                    avatar:
+                      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+                  },
+                  text:
+                    "The weekly video ideas are spot-on. It's like having a data analyst on my team who actually understands my niche.",
                 },
                 {
-                  name: "Emily Rodriguez",
-                  role: "Lifestyle Vlogger • 120K Subscribers",
-                  content: "I used to spend hours brainstorming. Now I just check CreatorMind and create content I know will perform well.",
-                  rating: 5,
+                  author: {
+                    name: "Emily Rodriguez",
+                    handle: "@emilylifestyle",
+                    avatar:
+                      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
+                  },
+                  text:
+                    "I used to spend hours brainstorming. Now I just check CreatorMind and create content I know will perform well.",
+                },
+                {
+                  author: {
+                    name: "David Kim",
+                    handle: "@davidcooks",
+                    avatar:
+                      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
+                  },
+                  text:
+                    "The insights are incredibly accurate. I've doubled my subscriber growth rate in 3 months.",
+                },
+                {
+                  author: {
+                    name: "Lisa Wang",
+                    handle: "@lisafitness",
+                    avatar:
+                      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face",
+                  },
+                  text:
+                    "Finally, data-driven content creation that actually works. My audience retention has never been better.",
                 },
               ]}
             />
           </div>
 
-          <div className="mt-32 max-w-6xl mx-auto pointer-events-auto">
+          <div className="mt-16 max-w-6xl mx-auto pointer-events-auto">
             <CTA
-              variant="solid"
               title="Ready to stop guessing?"
               description="Join creators who know exactly what their audience wants."
               primaryAction={{
                 label: "Get Started Free",
-                href: "/auth/signin"
+                href: "/auth/signin",
               }}
             />
           </div>
 
-          <div className="mt-48 max-w-6xl mx-auto pointer-events-auto">
+          <div className="mt-32 mb-16 max-w-6xl mx-auto pointer-events-auto">
             <ContactUs />
           </div>
 
@@ -103,18 +130,6 @@ export default function HomePage() {
           </footer>
         </div>
       </main>
-    </div>
-  );
-}
-
-function Step({ number, title, description }: { number: number; title: string; description: string }) {
-  return (
-    <div className="relative">
-      <div className="bg-purple-600 text-white rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold mx-auto mb-4">
-        {number}
-      </div>
-      <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
-      <p className="text-gray-300">{description}</p>
     </div>
   );
 }

@@ -6,15 +6,37 @@ import { Circle, Lightbulb, Activity } from 'lucide-react';
 
 export function AnimatedFeatures() {
   return (
-    <div style={{ height: '600px', position: 'relative' }}>
-      <CardSwap
-        cardDistance={60}
-        verticalDistance={70}
-        delay={5000}
-        pauseOnHover={true}
-        width={450}
-        height={350}
-      >
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+      {/* Left: Descriptive Text */}
+      <div className="max-w-xl">
+        <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 ">
+          Stop guessing. Start knowing.
+        </h2>
+        <p className="text-lg text-gray-400 mb-6 leading-relaxed">
+          CreatorMind transforms your channel data into actionable insights. We analyze every video, every comment, and every pattern to tell you exactly what your audience wants next.
+        </p>
+        <p className="text-lg text-gray-400 leading-relaxed">
+          No more throwing ideas at the wall. Every recommendation is backed by your own performance data and audience signals.
+        </p>
+        <p className="text-lg text-gray-400 leading-relaxed mt-4">
+            We don't guess what might work. We analyze what has worked, what your audience is asking for, and what they'll engage with next.
+        </p>
+        <p className="text-lg text-gray-400 leading-relaxed mt-4">
+            We turn thousands of comments into clarity. Every comment gets automatically categorized—requests, questions, praise, confusion—so you can see exactly what your audience wants more of. Combined with format analysis showing which video styles keep viewers watching longest, and topic gap identification revealing what's missing from your content, you get a complete picture of untapped opportunities sitting right in front of you.
+        </p>
+      </div>
+
+      {/* Right: Animated Cards */}
+      <div style={{ height: '600px', position: 'relative' }}>
+        <CardSwap
+          cardDistance={60}
+          verticalDistance={70}
+          delay={5000}
+          pauseOnHover={true}
+          width={450}
+          height={350}
+        >
 
         {/* Card 1 */}
         <Card>
@@ -112,6 +134,8 @@ Top 5 Ideas Weekly</h3>
         </Card>
 
       </CardSwap>
+      </div>
+
     </div>
   );
 }
