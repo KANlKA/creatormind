@@ -2,16 +2,15 @@
 
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { Brain } from "lucide-react";
+import SpotlightCard from "@/components/ui/SpotlightCard";
 
 export default function SignInPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
+    <div className="min-h-screen bg-black flex items-center justify-center px-4">
+      <SpotlightCard className="max-w-md w-full">
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Brain className="h-12 w-12 text-purple-400" />
-            <span className="text-3xl font-bold text-white">CreatorMind</span>
+          <div className="flex items-center justify-center mb-4">
+            <span className="text-4xl font-bold text-white tracking-tight">CreatorMind</span>
           </div>
           <h1 className="text-2xl font-bold text-white mb-2">Welcome back</h1>
           <p className="text-gray-300">Sign in to access your creator intelligence</p>
@@ -46,7 +45,7 @@ export default function SignInPage() {
         <p className="text-center text-gray-400 text-sm mt-6">
           By continuing, you agree to connect your YouTube channel
         </p>
-      </div>
+      </SpotlightCard>
     </div>
   );
 }

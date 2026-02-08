@@ -9,32 +9,56 @@ export default function PerformancePage() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-black">
-      {/* Top spacing for navbar */}
-      <div className="h-20" />
+    <div className="min-h-screen bg-black text-white">
+      {/* Spacer for navbar */}
+      <div className="h-24" />
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Back Button */}
-        <div className="mb-6">
+      <div className="max-w-7xl mx-auto px-6 py-10 space-y-10">
+
+        {/* Back button */}
+        <div>
           <Button
             variant="outline"
-            className="gap-2 border-gray-700 text-gray-300 hover:bg-white hover:text-black hover:border-white"
+            className="
+              border-white/30 
+              text-gray-300 
+              bg-transparent
+              hover:bg-white 
+              hover:text-black 
+              hover:border-white
+              transition-all
+            "
             onClick={() => router.push("/dashboard")}
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Dashboard
           </Button>
         </div>
 
-        {/* Page Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-light text-white mb-2">Performance Patterns</h1>
-          <p className="text-gray-400 font-light">
-            Deep analysis of what's working for your channel based on all your historical data
+        {/* Header */}
+        <div className="space-y-2">
+          <h1 className="text-3xl font-light tracking-tight">
+            Performance Patterns
+          </h1>
+          <p className="text-gray-400 max-w-2xl">
+            Deep analysis of what actually works for your channel across formats,
+            topics, hooks, and timing.
           </p>
         </div>
 
-        <PerformancePatterns />
+        {/* Content container */}
+        <div
+          className="
+            bg-black 
+            border 
+            border-white/20 
+            rounded-2xl 
+            p-6
+          "
+        >
+          <PerformancePatterns />
+        </div>
+
       </div>
     </div>
   );

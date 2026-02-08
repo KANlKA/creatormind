@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useMemo, useState } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -29,7 +28,6 @@ import {
   Link2,
   Unlink,
 } from "lucide-react";
-import { toast } from "sonner";
 
 type Settings = {
   emailEnabled: boolean;
@@ -64,6 +62,13 @@ type SyncStatus = {
   isConnected: boolean;
 };
 
+type ChannelStatus = {
+  isConnected: boolean;
+  channelName?: string;
+  syncStatus?: "syncing" | "synced" | "failed" | "disconnected";
+  lastSyncedAt?: string;
+};
+
 const joinList = (values?: string[]) =>
   values && values.length > 0 ? values.join(", ") : "";
 
@@ -78,21 +83,39 @@ export default function SettingsPage() {
   const router = useRouter();
   const [settings, setSettings] = useState<Settings | null>(null);
   const [editedSettings, setEditedSettings] = useState<Settings | null>(null);
+  const [emailHistory, setEmailHistory] = useState<EmailLog[]>([]);
+  const [channelStatus, setChannelStatus] = useState<ChannelStatus>({
+    isConnected: false,
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [sending, setSending] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [historyPage, setHistoryPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [emailHistory, setEmailHistory] = useState<EmailLog[]>([]);
-  const [syncData, setSyncData] = useState<SyncStatus | null>(null);
+  const [syncing, setSyncing] = useState(false);
+  const [disconnecting, setDisconnecting] = useState(false);
+  const [clientTimezone, setClientTimezone] = useState<string>("UTC");
   const [alertMessage, setAlertMessage] = useState<{
     type: "success" | "error" | "info";
     message: string;
   } | null>(null);
   const [loadAttempts, setLoadAttempts] = useState(0);
 
-  const timezones = useMemo(
-    () => [
+  const getClientTimezone = () => {
+    if (typeof window === "undefined") return "UTC";
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+    } catch {
+      return "UTC";
+    }
+  };
+
+  const timezones = useMemo(() => {
+    if (typeof Intl !== "undefined" && "supportedValuesOf" in Intl) {
+      return (Intl as any).supportedValuesOf("timeZone") as string[];
+    }
+    return [
       "UTC",
       "America/New_York",
       "America/Chicago",
@@ -103,9 +126,9 @@ export default function SettingsPage() {
       "Asia/Kolkata",
       "Asia/Singapore",
       "Australia/Sydney",
-    ],
-    []
-  );
+      "Asia/Calcutta",
+    ];
+  }, []);
 
   // Load settings
   useEffect(() => {
@@ -181,43 +204,73 @@ export default function SettingsPage() {
     }
   };
 
-  // Load additional data
+  // Auto-detect timezone on mount
+  useEffect(() => {
+    const tz = getClientTimezone();
+    setClientTimezone(tz);
+  }, []);
+
+  // Load initial data
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [historyRes, syncRes] = await Promise.all([
-          fetch("/api/email/history?limit=10&page=1"),
-          fetch("/api/youtube/history"),
+        setLoading(true);
+        const [prefRes, historyRes, channelRes] = await Promise.all([
+          fetch("/api/settings/preferences"),
+          fetch("/api/email/history?limit=5&page=1"),
+          fetch("/api/youtube/connect"),
         ]);
+
+        if (prefRes.ok) {
+          const prefData = await prefRes.json();
+          const defaultTimezone = prefData.settings.timezone || clientTimezone;
+          setSettings({
+            ...prefData.settings,
+            timezone: defaultTimezone,
+          });
+          setEditedSettings({
+            ...prefData.settings,
+            timezone: defaultTimezone,
+          });
+        }
 
         if (historyRes.ok) {
           const historyData = await historyRes.json();
-          setEmailHistory(historyData.emails || []);
-          setTotalPages(historyData.pagination?.pages || 1);
+          setEmailHistory(historyData.emails);
+          setTotalPages(historyData.pagination.pages);
         }
 
-        if (syncRes.ok) {
-          const syncData = await syncRes.json();
-          setSyncData(syncData);
+        if (channelRes.ok) {
+          const channelData = await channelRes.json();
+          setChannelStatus({
+            isConnected: channelData.connected,
+            channelName: channelData.channelName,
+            syncStatus: channelData.connected ? (channelData.syncStatus || "synced") : "disconnected",
+            lastSyncedAt: channelData.lastSyncedAt,
+          });
         }
       } catch (error) {
-        console.error("Error loading data:", error);
+        console.error("Error loading settings:", error);
+        setAlertMessage({
+          type: "error",
+          message: "Error loading settings",
+        });
+      } finally {
+        setLoading(false);
       }
     };
 
-    if (status === "authenticated") {
-      loadData();
-    }
-  }, [status]);
+    loadData();
+  }, [clientTimezone]);
 
-  // Load email history pagination
+  // Load email history for different pages
   useEffect(() => {
     const loadHistory = async () => {
       try {
-        const res = await fetch(`/api/email/history?limit=10&page=${historyPage}`);
+        const res = await fetch(`/api/email/history?limit=5&page=${historyPage}`);
         if (res.ok) {
           const data = await res.json();
-          setEmailHistory(data.emails || []);
+          setEmailHistory(data.emails);
         }
       } catch (error) {
         console.error("Error loading email history:", error);
@@ -231,17 +284,26 @@ export default function SettingsPage() {
 
   const handleSaveSettings = async () => {
     if (!editedSettings) return;
-    setSaving(true);
+
+    // Use client timezone if not manually changed
+    const settingsToSave = {
+      ...editedSettings,
+      timezone: editedSettings.timezone || clientTimezone,
+    };
+
     try {
+      setSaving(true);
       const response = await fetch("/api/settings/preferences", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ settings: editedSettings }),
+        body: JSON.stringify({ settings: settingsToSave }),
       });
 
       if (response.status === 401) {
-        toast.error("Session expired. Please sign in again.");
+        setAlertMessage({
+          type: "error",
+          message: "Session expired. Please sign in again.",
+        });
         await signIn();
         return;
       }
@@ -254,10 +316,16 @@ export default function SettingsPage() {
       setSettings(data.settings);
       setEditedSettings(data.settings);
       setIsEditMode(false);
-      toast.success("Settings saved successfully!");
+      setAlertMessage({
+        type: "success",
+        message: "Settings saved successfully!",
+      });
     } catch (error) {
       console.error("Error saving settings:", error);
-      toast.error((error as Error).message || "Failed to save settings");
+      setAlertMessage({
+        type: "error",
+        message: (error as Error).message || "Failed to save settings",
+      });
     } finally {
       setSaving(false);
     }
@@ -266,6 +334,135 @@ export default function SettingsPage() {
   const handleCancel = () => {
     setEditedSettings(settings);
     setIsEditMode(false);
+  };
+
+  const handleSendTestEmail = async () => {
+    try {
+      const res = await fetch("/api/debug/send-email-now");
+      const data = await res.json();
+      if (data.success) {
+        setAlertMessage({
+          type: "success",
+          message: "Test email sent! Check your inbox.",
+        });
+        // Refresh email history
+        const historyRes = await fetch("/api/email/history?limit=5&page=1");
+        if (historyRes.ok) {
+          const historyData = await historyRes.json();
+          setEmailHistory(historyData.emails);
+          setTotalPages(historyData.pagination.pages);
+          setHistoryPage(1);
+        }
+      } else {
+        setAlertMessage({
+          type: "error",
+          message: `Error: ${data.error}`,
+        });
+      }
+    } catch (error) {
+      setAlertMessage({
+        type: "error",
+        message: "Error sending test email",
+      });
+    }
+  };
+
+  const handleResyncChannel = async () => {
+    if (!channelStatus.isConnected) {
+      setAlertMessage({
+        type: "error",
+        message: "Channel not connected",
+      });
+      return;
+    }
+
+    setSyncing(true);
+    setChannelStatus((prev) => ({
+      ...prev,
+      syncStatus: "syncing",
+    }));
+
+    try {
+      const res = await fetch("/api/youtube/sync", { method: "POST" });
+      if (res.ok) {
+        setAlertMessage({
+          type: "success",
+          message: "Channel sync started!",
+        });
+
+        // Refresh channel status after a delay
+        setTimeout(async () => {
+          const channelRes = await fetch("/api/youtube/connect");
+          if (channelRes.ok) {
+            const data = await channelRes.json();
+            setChannelStatus({
+              isConnected: data.connected,
+              channelName: data.channelName,
+              syncStatus: data.connected ? (data.syncStatus || "synced") : "disconnected",
+              lastSyncedAt: data.lastSyncedAt,
+            });
+          }
+        }, 3000);
+      } else {
+        setAlertMessage({
+          type: "error",
+          message: "Error syncing channel",
+        });
+        setChannelStatus((prev) => ({
+          ...prev,
+          syncStatus: "failed",
+        }));
+      }
+    } catch (error) {
+      setAlertMessage({
+        type: "error",
+        message: "Error syncing channel",
+      });
+      setChannelStatus((prev) => ({
+        ...prev,
+        syncStatus: "failed",
+      }));
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  const handleDisconnectChannel = async () => {
+    if (!confirm("Are you sure you want to disconnect your YouTube channel?")) {
+      return;
+    }
+
+    setDisconnecting(true);
+    try {
+      const res = await fetch("/api/youtube/disconnect", { method: "POST" });
+      if (res.ok) {
+        setChannelStatus({
+          isConnected: false,
+          syncStatus: "disconnected",
+          lastSyncedAt: undefined,
+        });
+        setAlertMessage({
+          type: "success",
+          message: "Channel disconnected successfully",
+        });
+      } else {
+        setAlertMessage({
+          type: "error",
+          message: "Error disconnecting channel",
+        });
+      }
+    } catch (error) {
+      setAlertMessage({
+        type: "error",
+        message: "Error disconnecting channel",
+      });
+    } finally {
+      setDisconnecting(false);
+    }
+  };
+
+  const handleConnectChannel = () => {
+    router.push("/dashboard");
   };
 
   const getStatusColor = (status: EmailLog["status"]) => {
@@ -282,6 +479,21 @@ export default function SettingsPage() {
         return "bg-red-600 text-white";
       default:
         return "bg-gray-600 text-white";
+    }
+  };
+
+  const getSyncStatusColor = (status?: string) => {
+    switch (status) {
+      case "synced":
+        return "bg-green-100 text-green-800";
+      case "syncing":
+        return "bg-blue-100 text-blue-800 animate-pulse";
+      case "failed":
+        return "bg-red-100 text-red-800";
+      case "disconnected":
+        return "bg-gray-100 text-gray-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -389,34 +601,22 @@ export default function SettingsPage() {
               </p>
             </div>
           </div>
-
           {!isEditMode ? (
             <Button
               onClick={() => setIsEditMode(true)}
-              size="lg"
-              className="bg-purple-600 hover:bg-purple-700 gap-2"
+              className="bg-purple-600 hover:bg-purple-700"
             >
-              <Edit3 className="h-4 w-4" />
-              Edit Settings
+              Edit
             </Button>
           ) : (
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <Button
                 onClick={handleSaveSettings}
-                disabled={saving}
-                size="lg"
-                className="bg-green-600 hover:bg-green-700 gap-2"
+                className="bg-green-600 hover:bg-green-700"
               >
-                <Save className="h-4 w-4" />
-                {saving ? "Saving..." : "Save Changes"}
+                Save
               </Button>
-              <Button
-                onClick={handleCancel}
-                variant="outline"
-                size="lg"
-                className="gap-2 border-zinc-700 text-gray-300"
-              >
-                <X className="h-4 w-4" />
+              <Button onClick={handleCancel} variant="outline">
                 Cancel
               </Button>
             </div>
@@ -465,18 +665,16 @@ export default function SettingsPage() {
               Email Preferences
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6 pt-6">
+          <CardContent className="space-y-6">
             {!isEditMode ? (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between p-5 bg-purple-950/20 rounded-xl border-2 border-purple-900/30">
-                  <span className="font-semibold text-white text-lg">
-                    Weekly Email Notifications
-                  </span>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-50 to-blue-50 rounded-lg border border-slate-200">
+                  <span className="font-semibold">Weekly Emails</span>
                   <Badge
                     className={
                       editedSettings.emailEnabled
-                        ? "bg-green-600 text-white text-base px-4 py-2"
-                        : "bg-gray-700 text-gray-300 text-base px-4 py-2"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-800"
                     }
                   >
                     {editedSettings.emailEnabled ? "Enabled" : "Disabled"}
@@ -484,41 +682,24 @@ export default function SettingsPage() {
                 </div>
 
                 {editedSettings.emailEnabled && (
-                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="p-5 bg-zinc-800/50 rounded-xl border border-zinc-700">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Calendar className="h-5 w-5 text-blue-400" />
-                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                          Frequency
-                        </p>
-                      </div>
-                      <p className="font-semibold text-white text-lg capitalize">
-                        {editedSettings.emailFrequency}
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div className="p-4 bg-slate-50 rounded-lg">
+                      <p className="text-xs text-gray-600 uppercase font-medium">Frequency</p>
+                      <p className="font-semibold mt-2 capitalize">
+                        {editedSettings.emailFrequency === "weekly" && "Every Week"}
+                        {editedSettings.emailFrequency === "biweekly" && "Every 2 Weeks"}
+                        {editedSettings.emailFrequency === "monthly" && "Every Month"}
                       </p>
                     </div>
-
-                    <div className="p-5 bg-zinc-800/50 rounded-xl border border-zinc-700">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Calendar className="h-5 w-5 text-green-400" />
-                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                          Day
-                        </p>
-                      </div>
-                      <p className="font-semibold text-white text-lg capitalize">
+                    <div className="p-4 bg-slate-50 rounded-lg">
+                      <p className="text-xs text-gray-600 uppercase font-medium">Day</p>
+                      <p className="font-semibold mt-2 capitalize">
                         {editedSettings.emailDay}
                       </p>
                     </div>
-
-                    <div className="p-5 bg-zinc-800/50 rounded-xl border border-zinc-700">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Clock className="h-5 w-5 text-purple-400" />
-                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                          Time
-                        </p>
-                      </div>
-                      <p className="font-semibold text-white text-lg">
-                        {editedSettings.emailTime}
-                      </p>
+                    <div className="p-4 bg-slate-50 rounded-lg">
+                      <p className="text-xs text-gray-600 uppercase font-medium">Time</p>
+                      <p className="font-semibold mt-2">{editedSettings.emailTime}</p>
                     </div>
 
                     <div className="p-5 bg-zinc-800/50 rounded-xl border border-zinc-700">
@@ -536,8 +717,8 @@ export default function SettingsPage() {
                 )}
               </div>
             ) : (
-              <div className="space-y-6">
-                <label className="flex items-center gap-4 p-5 bg-purple-950/20 rounded-xl border-2 border-purple-900/30 cursor-pointer hover:bg-purple-950/30 transition-all">
+              <>
+                <label className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg border border-blue-200 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={editedSettings.emailEnabled}
@@ -547,7 +728,7 @@ export default function SettingsPage() {
                         emailEnabled: e.target.checked,
                       })
                     }
-                    className="w-6 h-6 rounded cursor-pointer accent-purple-600"
+                    className="w-5 h-5 rounded accent-purple-600"
                   />
                   <span className="font-semibold text-white text-lg">
                     Enable weekly email insights
@@ -671,7 +852,16 @@ export default function SettingsPage() {
                     </div>
                   </div>
                 )}
-              </div>
+
+                <Button
+                  onClick={handleSendTestEmail}
+                  disabled={sending}
+                  variant="outline"
+                  className="w-full"
+                >
+                  {sending ? "Sending..." : "Send Test Email"}
+                </Button>
+              </>
             )}
           </CardContent>
         </Card>
@@ -804,95 +994,89 @@ export default function SettingsPage() {
         </Card>
 
         {/* Email History */}
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardHeader className="border-b border-zinc-800">
-            <CardTitle className="flex items-center gap-2 text-white text-2xl">
-              <Mail className="h-6 w-6 text-indigo-400" />
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5" />
               Email History
             </CardTitle>
           </CardHeader>
-          <CardContent className="pt-6">
+          <CardContent>
             {emailHistory.length === 0 ? (
-              <div className="text-center py-12">
-                <Mail className="h-16 w-16 text-gray-700 mx-auto mb-4" />
-                <p className="text-gray-400 text-lg">No emails sent yet</p>
-                <p className="text-gray-500 text-sm mt-2">
-                  Your email history will appear here
-                </p>
+              <div className="text-center py-8">
+                <Mail className="h-12 w-12 text-gray-300 mx-auto mb-2" />
+                <p className="text-gray-600">No emails sent yet</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="border-b-2 border-zinc-800">
-                    <tr>
-                      <th className="text-left py-4 px-4 font-semibold text-gray-400 uppercase tracking-wide">
-                        Status
-                      </th>
-                      <th className="text-left py-4 px-4 font-semibold text-gray-400 uppercase tracking-wide">
-                        Subject
-                      </th>
-                      <th className="text-left py-4 px-4 font-semibold text-gray-400 uppercase tracking-wide">
-                        Ideas
-                      </th>
-                      <th className="text-left py-4 px-4 font-semibold text-gray-400 uppercase tracking-wide">
-                        Date
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {emailHistory.map((email) => (
-                      <tr
-                        key={email.id}
-                        className="border-b border-zinc-800 hover:bg-zinc-800/30 transition-colors"
-                      >
-                        <td className="py-4 px-4">
-                          <Badge className={getStatusColor(email.status)}>
-                            {email.status.charAt(0).toUpperCase() +
-                              email.status.slice(1)}
-                          </Badge>
-                        </td>
-                        <td className="py-4 px-4">
-                          <div>
-                            <p className="font-medium text-white">{email.subject}</p>
-                            <p className="text-xs text-gray-500 mt-1">
-                              {email.recipientEmail}
-                            </p>
-                          </div>
-                        </td>
-                        <td className="py-4 px-4">
-                          <span className="text-white font-semibold">
-                            {email.ideaCount}
-                          </span>
-                        </td>
-                        <td className="py-4 px-4">
-                          <div>
-                            <p className="text-white">
-                              {new Date(email.sentAt).toLocaleDateString()}
-                            </p>
+              <div className="space-y-4">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b bg-gray-50">
+                        <th className="text-left py-3 px-3 font-semibold">Status</th>
+                        <th className="text-left py-3 px-3 font-semibold">Subject</th>
+                        <th className="text-left py-3 px-3 font-semibold">Ideas</th>
+                        <th className="text-left py-3 px-3 font-semibold">Date & Time</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {emailHistory.map((email) => (
+                        <tr key={email.id} className="border-b hover:bg-slate-50">
+                          <td className="py-3 px-3">
+                            <Badge className={getStatusColor(email.status)}>
+                              {email.status.charAt(0).toUpperCase() +
+                                email.status.slice(1)}
+                            </Badge>
+                          </td>
+                          <td className="py-3 px-3">
+                            <div>
+                              <p className="font-medium">{email.subject}</p>
+                              {email.failureReason && (
+                                <p className="text-xs text-red-600 mt-1">
+                                  ⚠️ {email.failureReason}
+                                </p>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-3 px-3 text-center font-semibold">{email.ideaCount}</td>
+                          <td className="py-3 px-3">
+                            <p className="text-sm">{new Date(email.sentAt).toLocaleDateString()}</p>
                             <p className="text-xs text-gray-500">
                               {new Date(email.sentAt).toLocaleTimeString()}
                             </p>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
 
+                {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="flex justify-center gap-3 mt-6">
+                  <div className="flex items-center justify-center gap-2 mt-6 pt-4 border-t">
                     <Button
                       variant="outline"
                       size="sm"
                       disabled={historyPage === 1}
                       onClick={() => setHistoryPage(Math.max(1, historyPage - 1))}
-                      className="border-zinc-700 text-gray-300"
                     >
-                      Previous
+                      ◀ Previous
                     </Button>
-                    <span className="flex items-center px-4 text-sm text-gray-400">
-                      Page {historyPage} of {totalPages}
-                    </span>
+                    
+                    <div className="flex gap-1">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <Button
+                          key={page}
+                          variant={historyPage === page ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setHistoryPage(page)}
+                          className={historyPage === page ? "min-w-[40px] bg-purple-600 hover:bg-purple-700" : "min-w-[40px]"}
+                        >
+                          {page}
+                        </Button>
+                      ))}
+                    </div>
+
                     <Button
                       variant="outline"
                       size="sm"
@@ -900,116 +1084,88 @@ export default function SettingsPage() {
                       onClick={() =>
                         setHistoryPage(Math.min(totalPages, historyPage + 1))
                       }
-                      className="border-zinc-700 text-gray-300"
                     >
-                      Next
+                      Next ▶
                     </Button>
                   </div>
                 )}
+
+                <div className="text-center text-xs text-gray-500 mt-4">
+                  Page {historyPage} of {totalPages} • Showing 5 emails per page
+                </div>
               </div>
             )}
           </CardContent>
         </Card>
 
         {/* Channel Management */}
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardHeader className="border-b border-zinc-800">
-            <CardTitle className="flex items-center gap-2 text-white text-2xl">
-              <Link2 className="h-6 w-6 text-red-400" />
-              Channel Management
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <SettingsIcon className="h-5 w-5" />
+              YouTube Channel Management
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6 pt-6">
-            <div className="p-6 bg-zinc-800/50 rounded-xl border border-zinc-700">
-              <div className="grid md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <p className="text-sm text-gray-400 mb-1">Sync Status</p>
-                  <p className="font-semibold text-white capitalize">
-                    {syncData?.syncStatus || "Unknown"}
+          <CardContent className="space-y-4">
+            {channelStatus.isConnected ? (
+              <>
+                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <p className="text-sm text-blue-800 font-semibold">
+                    {channelStatus.channelName}
                   </p>
+                  <div className="text-sm text-blue-700 mt-3">
+                    <span className="font-medium">Sync Status:</span>{" "}
+                    <Badge className={getSyncStatusColor(channelStatus.syncStatus) + " ml-2"}>
+                      {channelStatus.syncStatus?.charAt(0).toUpperCase() +
+                        (channelStatus.syncStatus?.slice(1) || "")}
+                    </Badge>
+                  </div>
+                  {channelStatus.lastSyncedAt && (
+                    <p className="text-sm text-blue-700 mt-2">
+                      <span className="font-medium">Last Synced:</span>{" "}
+                      {new Date(channelStatus.lastSyncedAt).toLocaleString()}
+                    </p>
+                  )}
                 </div>
-                <div>
-                  <p className="text-sm text-gray-400 mb-1">Last Synced</p>
-                  <p className="font-semibold text-white">
-                    {syncData?.lastSyncedAt
-                      ? new Date(syncData.lastSyncedAt).toLocaleString()
-                      : "Never"}
-                  </p>
+
+                <div className="flex gap-2 flex-wrap">
+                  <Button
+                    onClick={handleResyncChannel}
+                    disabled={syncing || !channelStatus.isConnected}
+                    className={syncing || !channelStatus.isConnected ? "bg-gray-400 text-gray-700 cursor-not-allowed opacity-60 hover:bg-gray-400" : "bg-purple-600 hover:bg-purple-700"}
+                  >
+                    <RotateCcw className="mr-2 h-4 w-4" />
+                    {syncing ? "Syncing..." : "Re-sync Channel"}
+                  </Button>
+                  <Button
+                    onClick={handleDisconnectChannel}
+                    disabled={disconnecting}
+                    className={disconnecting ? "bg-gray-400 text-gray-700 cursor-not-allowed opacity-60 hover:bg-gray-400" : "bg-purple-600 hover:bg-purple-700"}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    {disconnecting ? "Disconnecting..." : "Disconnect Channel"}
+                  </Button>
                 </div>
-              </div>
-
-              {!syncData?.isConnected && (
-                <div className="p-4 bg-yellow-950/20 border border-yellow-900/30 rounded-lg">
-                  <p className="text-sm text-yellow-400">
-                    Your YouTube channel is disconnected. Connect again to receive
-                    personalized video ideas.
-                  </p>
+              </>
+            ) : (
+              <>
+                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="text-sm text-gray-800 font-semibold flex items-center gap-2">
+                    Sync Status:
+                    <Badge className={getSyncStatusColor(channelStatus.syncStatus)}>
+                      Disconnected
+                    </Badge>
+                  </div>
                 </div>
-              )}
-            </div>
 
-            <div className="flex gap-3 flex-wrap">
-              <Button
-                onClick={async () => {
-                  await fetch("/api/youtube/sync", { method: "POST" });
-                  const res = await fetch("/api/youtube/history");
-                  const data = await res.json();
-                  setSyncData(data);
-                  toast.success("Channel re-sync initiated");
-                }}
-                className="bg-purple-600 hover:bg-purple-700 gap-2"
-              >
-                <RotateCcw className="h-4 w-4" />
-                Re-sync Channel
-              </Button>
-
-              <Button
-                onClick={async () => {
-                  if (syncData?.isConnected) {
-                    if (
-                      confirm(
-                        "Are you sure you want to disconnect your YouTube channel?"
-                      )
-                    ) {
-                      await fetch("/api/youtube/disconnect", { method: "POST" });
-                      toast.success("Channel disconnected");
-                      setSyncData((prev) => ({
-                        ...(prev as SyncStatus),
-                        isConnected: false,
-                        syncStatus: "disconnected",
-                      }));
-                    }
-                  } else {
-                    await fetch("/api/youtube/connect", { method: "POST" });
-                    toast.success("Channel connected");
-                    setSyncData((prev) => ({
-                      ...(prev as SyncStatus),
-                      isConnected: true,
-                      syncStatus: "connected",
-                      lastSyncedAt: new Date().toISOString(),
-                    }));
-                  }
-                }}
-                variant="outline"
-                className={
-                  syncData?.isConnected
-                    ? "border-red-700 text-red-400 hover:bg-red-950/20 gap-2"
-                    : "border-purple-700 text-purple-400 hover:bg-purple-950/20 gap-2"
-                }
-              >
-                {syncData?.isConnected ? (
-                  <>
-                    <Unlink className="h-4 w-4" />
-                    Disconnect Channel
-                  </>
-                ) : (
-                  <>
-                    <Link2 className="h-4 w-4" />
-                    Connect Channel
-                  </>
-                )}
-              </Button>
-            </div>
+                <Button
+                  onClick={handleConnectChannel}
+                  className="w-full bg-purple-600 hover:bg-purple-700"
+                >
+                  Connect YouTube Channel
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>

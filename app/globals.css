@@ -7,6 +7,19 @@
   --background: 0 0% 0%;
   --foreground: 0 0% 100%;
 
+.dark {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+/* Add these to your existing app/globals.css file */
+
+/* Chart Color Variables - Add inside :root {} */
+:root {
   /* Chart colors for engagement timeline */
   --chart-1: 262 83% 58%;  /* Purple - main engagement color */
   --chart-2: 217 91% 60%;  /* Blue */
@@ -37,4 +50,5 @@ body {
 /* Prevent horizontal overflow */
 html, body {
   overflow-x: hidden;
+}
 }
