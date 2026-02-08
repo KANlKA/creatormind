@@ -134,7 +134,7 @@ export function PerformancePatterns() {
     return (
       <div className="space-y-6">
         {[1, 2, 3, 4].map((i) => (
-          <Skeleton key={i} className="h-40 bg-gray-900 rounded-lg" />
+          <Skeleton key={i} className="h-40 bg-zinc-800 rounded-lg" />
         ))}
       </div>
     );
@@ -142,7 +142,7 @@ export function PerformancePatterns() {
 
   if (error || !patterns) {
     return (
-      <Card className="bg-black border border-gray-800">
+      <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
         <CardContent className="pt-6">
           <p className="text-gray-400 text-center py-8">
             {error || "No pattern data available"}
@@ -155,10 +155,10 @@ export function PerformancePatterns() {
   return (
     <div className="space-y-6">
       {/* Key Insights */}
-      <Card className="bg-black border border-gray-800 hover:border-gray-700 transition-all duration-300">
+      <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-gray-300">
-            <Lightbulb className="h-5 w-5 text-gray-400" />
+          <CardTitle className="flex items-center gap-2 text-white">
+            <Lightbulb className="h-5 w-5 text-purple-400" />
             Key Performance Insights
           </CardTitle>
         </CardHeader>
@@ -167,14 +167,14 @@ export function PerformancePatterns() {
             {patterns.insights.map((insight, i) => (
               <div
                 key={i}
-                className="flex items-start gap-3 bg-gray-900 p-4 rounded-lg border border-gray-800 hover:border-gray-700 transition-all duration-300"
+                className="flex items-start gap-3 p-4 rounded-lg"
               >
                 <div className="flex-shrink-0 mt-0.5">
-                  <div className="w-6 h-6 rounded-full bg-gray-800 flex items-center justify-center border border-gray-700">
+                  <div className="w-6 h-6 rounded-full bg-zinc-800 flex items-center justify-center border border-zinc-700">
                     <span className="text-xs text-gray-400">{i + 1}</span>
                   </div>
                 </div>
-                <p className="text-gray-300">{insight}</p>
+                <p className="text-white">{insight}</p>
               </div>
             ))}
           </div>
@@ -186,56 +186,56 @@ export function PerformancePatterns() {
         <MetricCard
           label="Total Videos"
           value={patterns.overallMetrics.totalVideos.toLocaleString()}
-          icon={<Video className="h-4 w-4 text-gray-400" />}
+          icon={<Video className="h-4 w-4 text-purple-400" />}
         />
         <MetricCard
           label="Avg Engagement"
           value={`${(patterns.overallMetrics.avgEngagement * 100).toFixed(1)}%`}
-          icon={<Target className="h-4 w-4 text-gray-400" />}
+          icon={<Target className="h-4 w-4 text-blue-400" />}
           trend={patterns.overallMetrics.engagementTrend}
         />
         <MetricCard
           label="Total Views"
           value={formatNumber(patterns.overallMetrics.totalViews)}
-          icon={<TrendingUp className="h-4 w-4 text-gray-400" />}
+          icon={<TrendingUp className="h-4 w-4 text-green-400" />}
         />
         <MetricCard
           label="Avg Views/Video"
           value={formatNumber(patterns.overallMetrics.avgViewsPerVideo)}
-          icon={<BarChart className="h-4 w-4 text-gray-400" />}
+          icon={<BarChart className="h-4 w-4 text-orange-400" />}
         />
       </div>
 
       {/* Detailed Patterns */}
       <Tabs defaultValue="formats" className="w-full">
-        <TabsList className="grid w-full grid-cols-5 bg-gray-900 border border-gray-800 p-1 rounded-lg">
+        <TabsList className="grid w-full grid-cols-5 bg-zinc-900 border border-zinc-700 p-1 rounded-lg">
           <TabsTrigger 
             value="formats" 
-            className="text-gray-400 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:border-gray-300"
+            className="text-gray-400 data-[state=active]:bg-zinc-700 data-[state=active]:text-white data-[state=active]:border-zinc-600"
           >
             Formats
           </TabsTrigger>
           <TabsTrigger 
             value="topics" 
-            className="text-gray-400 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:border-gray-300"
+            className="text-gray-400 data-[state=active]:bg-zinc-700 data-[state=active]:text-white data-[state=active]:border-zinc-600"
           >
             Topics
           </TabsTrigger>
           <TabsTrigger 
             value="tones" 
-            className="text-gray-400 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:border-gray-300"
+            className="text-gray-400 data-[state=active]:bg-zinc-700 data-[state=active]:text-white data-[state=active]:border-zinc-600"
           >
             Tones
           </TabsTrigger>
           <TabsTrigger 
             value="hooks" 
-            className="text-gray-400 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:border-gray-300"
+            className="text-gray-400 data-[state=active]:bg-zinc-700 data-[state=active]:text-white data-[state=active]:border-zinc-600"
           >
             Hooks
           </TabsTrigger>
           <TabsTrigger 
             value="timing" 
-            className="text-gray-400 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:border-gray-300"
+            className="text-gray-400 data-[state=active]:bg-zinc-700 data-[state=active]:text-white data-[state=active]:border-zinc-600"
           >
             Timing
           </TabsTrigger>
@@ -243,9 +243,9 @@ export function PerformancePatterns() {
 
         {/* Formats Tab */}
         <TabsContent value="formats" className="space-y-4">
-          <Card className="bg-black border border-gray-800 hover:border-gray-700 transition-all duration-300">
+          <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
             <CardHeader>
-              <CardTitle className="text-gray-300">Best Performing Formats</CardTitle>
+              <CardTitle className="text-white">Best Performing Formats</CardTitle>
               <p className="text-sm text-gray-400">
                 Which content formats get the highest engagement
               </p>
@@ -262,9 +262,9 @@ export function PerformancePatterns() {
 
         {/* Topics Tab */}
         <TabsContent value="topics" className="space-y-4">
-          <Card className="bg-black border border-gray-800 hover:border-gray-700 transition-all duration-300">
+          <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
             <CardHeader>
-              <CardTitle className="text-gray-300">Best Performing Topics</CardTitle>
+              <CardTitle className="text-white">Best Performing Topics</CardTitle>
               <p className="text-sm text-gray-400">
                 Topics ranked by average engagement rate
               </p>
@@ -281,9 +281,9 @@ export function PerformancePatterns() {
 
         {/* Tones Tab */}
         <TabsContent value="tones" className="space-y-4">
-          <Card className="bg-black border border-gray-800 hover:border-gray-700 transition-all duration-300">
+          <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
             <CardHeader>
-              <CardTitle className="text-gray-300">Best Performing Tones</CardTitle>
+              <CardTitle className="text-white">Best Performing Tones</CardTitle>
               <p className="text-sm text-gray-400">
                 Which tone resonates most with your audience
               </p>
@@ -300,9 +300,9 @@ export function PerformancePatterns() {
 
         {/* Hooks Tab */}
         <TabsContent value="hooks" className="space-y-4">
-          <Card className="bg-black border border-gray-800 hover:border-gray-700 transition-all duration-300">
+          <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
             <CardHeader>
-              <CardTitle className="text-gray-300">Best Hook Types</CardTitle>
+              <CardTitle className="text-white">Best Hook Types</CardTitle>
               <p className="text-sm text-gray-400">
                 What gets people to click and watch
               </p>
@@ -319,9 +319,9 @@ export function PerformancePatterns() {
 
         {/* Timing Tab */}
         <TabsContent value="timing" className="space-y-4">
-          <Card className="bg-black border border-gray-800 hover:border-gray-700 transition-all duration-300">
+          <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-gray-300">
+              <CardTitle className="flex items-center gap-2 text-white">
                 <Clock className="h-5 w-5 text-gray-400" />
                 Upload Time Optimization
               </CardTitle>
@@ -331,10 +331,10 @@ export function PerformancePatterns() {
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Best Combination */}
-              <div className="bg-gray-900 border border-gray-800 rounded-lg p-4 hover:border-gray-700 transition-all duration-300">
+              <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-4 hover:bg-zinc-750 transition-colors">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center border border-gray-700">
-                    <Target className="h-4 w-4 text-gray-400" />
+                  <div className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center border border-zinc-600">
+                    <Target className="h-4 w-4 text-purple-400" />
                   </div>
                   <div>
                     <p className="text-sm text-gray-400 font-medium">Optimal Upload Time</p>
@@ -344,7 +344,7 @@ export function PerformancePatterns() {
                     </p>
                   </div>
                 </div>
-                <p className="text-sm text-gray-300">
+                <p className="text-sm text-white">
                   Avg engagement:{" "}
                   {(
                     patterns.uploadTimeOptimization.bestCombination
@@ -356,8 +356,8 @@ export function PerformancePatterns() {
 
               {/* By Day of Week */}
               <div>
-                <h3 className="font-semibold mb-3 text-gray-300 flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-gray-400" />
+                <h3 className="font-semibold mb-3 text-white flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-blue-400" />
                   By Day of Week
                 </h3>
                 <div className="space-y-2">
@@ -369,8 +369,8 @@ export function PerformancePatterns() {
 
               {/* By Time of Day */}
               <div>
-                <h3 className="font-semibold mb-3 text-gray-300 flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-gray-400" />
+                <h3 className="font-semibold mb-3 text-white flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-orange-400" />
                   By Time of Day
                 </h3>
                 <div className="space-y-2">
@@ -399,7 +399,7 @@ function MetricCard({
   trend?: "up" | "down" | "stable";
 }) {
   return (
-    <Card className="bg-black border border-gray-800 hover:border-gray-700 transition-all duration-300">
+    <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
       <CardContent className="pt-6">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm text-gray-400">{label}</span>
@@ -409,9 +409,9 @@ function MetricCard({
           <p className="text-2xl font-bold text-white">{value}</p>
           {trend && (
             <span className="text-sm">
-              {trend === "up" && <TrendingUp className="h-4 w-4 text-gray-300" />}
+              {trend === "up" && <TrendingUp className="h-4 w-4 text-green-400" />}
               {trend === "down" && (
-                <TrendingDown className="h-4 w-4 text-gray-400" />
+                <TrendingDown className="h-4 w-4 text-red-400" />
               )}
               {trend === "stable" && <Minus className="h-4 w-4 text-gray-500" />}
             </span>
@@ -430,18 +430,18 @@ function FormatCard({
   rank: number;
 }) {
   return (
-    <div className="border border-gray-800 rounded-lg p-4 hover:border-gray-700 transition-all duration-300 bg-black">
+    <div className="border border-zinc-700 rounded-lg p-4 hover:bg-zinc-800 transition-colors bg-zinc-900">
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Badge variant={rank === 1 ? "default" : "secondary"} className={rank === 1 ? "bg-white text-black border border-gray-300" : "bg-gray-900 text-gray-300 border border-gray-800"}>
+          <Badge variant={rank === 1 ? "default" : "secondary"} className={rank === 1 ? "bg-zinc-700 text-white border border-zinc-600" : "bg-zinc-800 text-gray-300 border border-zinc-700"}>
             #{rank}
           </Badge>
           <div className="flex items-center gap-2">
-            <Video className="h-4 w-4 text-gray-400" />
-            <h4 className="font-semibold text-gray-300 capitalize">{format.format}</h4>
+            <Video className="h-4 w-4 text-purple-400" />
+            <h4 className="font-semibold text-white capitalize">{format.format}</h4>
           </div>
         </div>
-        <span className="text-sm font-medium text-gray-300 bg-gray-900 px-2 py-1 rounded-full border border-gray-800">
+        <span className="text-sm font-medium text-white bg-zinc-800 px-2 py-1 rounded-full border border-zinc-700">
           {format.comparisonToAverage.toFixed(1)}× avg
         </span>
       </div>
@@ -462,9 +462,9 @@ function FormatCard({
         </div>
       </div>
       {format.topVideo && (
-        <div className="mt-4 pt-4 border-t border-gray-800 text-sm">
+        <div className="mt-4 pt-4 border-t border-zinc-700 text-sm">
           <p className="text-gray-400 mb-1">Top video:</p>
-          <p className="font-medium text-gray-300 truncate">{format.topVideo.title}</p>
+          <p className="font-medium text-white truncate">{format.topVideo.title}</p>
         </div>
       )}
     </div>
@@ -473,18 +473,18 @@ function FormatCard({
 
 function TopicCard({ topic }: { topic: TopicPerformance }) {
   return (
-    <div className="border border-gray-800 rounded-lg p-4 hover:border-gray-700 transition-all duration-300 bg-black">
+    <div className="border border-zinc-700 rounded-lg p-4 hover:bg-zinc-800 transition-colors bg-zinc-900">
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Badge className="bg-gray-900 text-gray-300 border border-gray-800">
+          <Badge className="bg-zinc-800 text-gray-300 border border-zinc-700">
             #{topic.rank}
           </Badge>
           <div className="flex items-center gap-2">
-            <Hash className="h-4 w-4 text-gray-400" />
-            <h4 className="font-semibold text-gray-300">{topic.topic}</h4>
+            <Hash className="h-4 w-4 text-blue-400" />
+            <h4 className="font-semibold text-white">{topic.topic}</h4>
           </div>
         </div>
-        <span className="text-sm font-medium text-gray-300 bg-gray-900 px-2 py-1 rounded-full border border-gray-800">
+        <span className="text-sm font-medium text-white bg-zinc-800 px-2 py-1 rounded-full border border-zinc-700">
           {(topic.avgEngagement * 100).toFixed(1)}%
         </span>
       </div>
@@ -508,18 +508,18 @@ function TopicCard({ topic }: { topic: TopicPerformance }) {
 
 function ToneCard({ tone, rank }: { tone: TonePerformance; rank: number }) {
   return (
-    <div className="border border-gray-800 rounded-lg p-4 hover:border-gray-700 transition-all duration-300 bg-black">
+    <div className="border border-zinc-700 rounded-lg p-4 hover:bg-zinc-800 transition-colors bg-zinc-900">
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Badge variant={rank === 1 ? "default" : "secondary"} className={rank === 1 ? "bg-white text-black border border-gray-300" : "bg-gray-900 text-gray-300 border border-gray-800"}>
+          <Badge variant={rank === 1 ? "default" : "secondary"} className={rank === 1 ? "bg-zinc-700 text-white border border-zinc-600" : "bg-zinc-800 text-gray-300 border border-zinc-700"}>
             #{rank}
           </Badge>
           <div className="flex items-center gap-2">
-            <Mic className="h-4 w-4 text-gray-400" />
-            <h4 className="font-semibold text-gray-300 capitalize">{tone.tone}</h4>
+            <Mic className="h-4 w-4 text-green-400" />
+            <h4 className="font-semibold text-white capitalize">{tone.tone}</h4>
           </div>
         </div>
-        <span className="text-sm font-medium text-gray-300 bg-gray-900 px-2 py-1 rounded-full border border-gray-800">
+        <span className="text-sm font-medium text-white bg-zinc-800 px-2 py-1 rounded-full border border-zinc-700">
           {tone.comparisonToAverage.toFixed(1)}× avg
         </span>
       </div>
@@ -541,20 +541,20 @@ function ToneCard({ tone, rank }: { tone: TonePerformance; rank: number }) {
 
 function HookCard({ hook, rank }: { hook: HookPerformance; rank: number }) {
   return (
-    <div className="border border-gray-800 rounded-lg p-4 hover:border-gray-700 transition-all duration-300 bg-black">
+    <div className="border border-zinc-700 rounded-lg p-4 hover:bg-zinc-800 transition-colors bg-zinc-900">
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Badge variant={rank === 1 ? "default" : "secondary"} className={rank === 1 ? "bg-white text-black border border-gray-300" : "bg-gray-900 text-gray-300 border border-gray-800"}>
+          <Badge variant={rank === 1 ? "default" : "secondary"} className={rank === 1 ? "bg-zinc-700 text-white border border-zinc-600" : "bg-zinc-800 text-gray-300 border border-zinc-700"}>
             #{rank}
           </Badge>
           <div className="flex items-center gap-2">
-            <Zap className="h-4 w-4 text-gray-400" />
-            <h4 className="font-semibold text-gray-300 capitalize">
+            <Zap className="h-4 w-4 text-yellow-400" />
+            <h4 className="font-semibold text-white capitalize">
               {hook.hookType.replace("-", " ")}
             </h4>
           </div>
         </div>
-        <span className="text-sm font-medium text-gray-300 bg-gray-900 px-2 py-1 rounded-full border border-gray-800">
+        <span className="text-sm font-medium text-white bg-zinc-800 px-2 py-1 rounded-full border border-zinc-700">
           {hook.comparisonToAverage.toFixed(1)}× avg
         </span>
       </div>
@@ -579,16 +579,16 @@ function DayCard({ day }: { day: DayPerformance }) {
   const widthPercent = (day.avgEngagement / maxEngagement) * 100;
 
   return (
-    <div className="border border-gray-800 rounded-lg p-3 bg-black hover:border-gray-700 transition-all duration-300">
+    <div className="border border-zinc-700 rounded-lg p-3 bg-zinc-900 hover:bg-zinc-800 transition-colors">
       <div className="flex items-center justify-between mb-2">
-        <span className="font-medium text-gray-300 capitalize">{day.day}</span>
+        <span className="font-medium text-white capitalize">{day.day}</span>
         <span className="text-sm text-gray-400">
           {(day.avgEngagement * 100).toFixed(1)}%
         </span>
       </div>
-      <div className="w-full bg-gray-900 rounded-full h-1.5">
+      <div className="w-full bg-zinc-800 rounded-full h-1.5">
         <div
-          className="bg-gray-300 h-1.5 rounded-full transition-all"
+          className="bg-purple-500 h-1.5 rounded-full transition-all"
           style={{ width: `${Math.min(widthPercent, 100)}%` }}
         />
       </div>
@@ -605,19 +605,19 @@ function TimeSlotCard({ timeSlot }: { timeSlot: TimeOfDayPerformance }) {
   const widthPercent = (timeSlot.avgEngagement / maxEngagement) * 100;
 
   return (
-    <div className="border border-gray-800 rounded-lg p-3 bg-black hover:border-gray-700 transition-all duration-300">
+    <div className="border border-zinc-700 rounded-lg p-3 bg-zinc-900 hover:bg-zinc-800 transition-colors">
       <div className="flex items-center justify-between mb-2">
         <div>
-          <span className="font-medium text-gray-300 capitalize">{timeSlot.timeSlot}</span>
+          <span className="font-medium text-white capitalize">{timeSlot.timeSlot}</span>
           <p className="text-xs text-gray-500">{timeSlot.timeRange}</p>
         </div>
         <span className="text-sm text-gray-400">
           {(timeSlot.avgEngagement * 100).toFixed(1)}%
         </span>
       </div>
-      <div className="w-full bg-gray-900 rounded-full h-1.5">
+      <div className="w-full bg-zinc-800 rounded-full h-1.5">
         <div
-          className="bg-gray-300 h-1.5 rounded-full transition-all"
+          className="bg-purple-500 h-1.5 rounded-full transition-all"
           style={{ width: `${Math.min(widthPercent, 100)}%` }}
         />
       </div>

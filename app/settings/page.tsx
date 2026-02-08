@@ -485,15 +485,15 @@ export default function SettingsPage() {
   const getSyncStatusColor = (status?: string) => {
     switch (status) {
       case "synced":
-        return "bg-green-100 text-green-800";
+        return "bg-green-600 text-white";
       case "syncing":
-        return "bg-blue-100 text-blue-800 animate-pulse";
+        return "bg-blue-600 text-white animate-pulse";
       case "failed":
-        return "bg-red-100 text-red-800";
+        return "bg-red-600 text-white";
       case "disconnected":
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-600 text-white";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-600 text-white";
     }
   };
 
@@ -514,20 +514,20 @@ export default function SettingsPage() {
       <div className="min-h-screen bg-black">
         <div className="h-20" />
         <div className="max-w-6xl mx-auto px-6 py-8">
-          <Card className="bg-red-950/20 border-red-900/50">
+          <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-red-400">
-                <Shield className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 text-white">
+                <Shield className="h-5 w-5 text-gray-400" />
                 Authentication Required
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-gray-400">
+              <p className="text-gray-300">
                 You need to be logged in to access settings.
               </p>
               <Button
                 onClick={() => signIn()}
-                className="bg-red-600 hover:bg-red-700 gap-2"
+                className="bg-zinc-700 hover:bg-zinc-600 border border-zinc-600 text-white gap-2"
               >
                 <LogIn className="h-4 w-4" />
                 Sign In
@@ -544,15 +544,15 @@ export default function SettingsPage() {
       <div className="min-h-screen bg-black">
         <div className="h-20" />
         <div className="max-w-6xl mx-auto px-6 py-8">
-          <Card className="bg-red-950/20 border-red-900/50">
+          <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-red-400">
-                <AlertCircle className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 text-white">
+                <AlertCircle className="h-5 w-5 text-gray-400" />
                 Error Loading Settings
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-gray-400">
+              <p className="text-gray-300">
                 {alertMessage?.message || "There was a problem loading your settings."}
               </p>
               <div className="flex gap-3 flex-wrap">
@@ -561,7 +561,7 @@ export default function SettingsPage() {
                     setLoadAttempts(0);
                     loadSettings();
                   }}
-                  className="bg-red-600 hover:bg-red-700 gap-2"
+                  className="bg-zinc-700 hover:bg-zinc-600 border border-zinc-600 text-white gap-2"
                 >
                   <RefreshCw className="h-4 w-4" />
                   Try Again
@@ -569,7 +569,7 @@ export default function SettingsPage() {
                 <Button
                   onClick={() => signIn()}
                   variant="outline"
-                  className="gap-2 border-zinc-700 text-gray-300"
+                  className="gap-2 border-zinc-600 text-gray-300 hover:bg-zinc-800"
                 >
                   <LogIn className="h-4 w-4" />
                   Sign In Again
@@ -591,20 +591,22 @@ export default function SettingsPage() {
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-12 w-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/50">
-              <SettingsIcon className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-4xl font-bold text-white">Settings</h1>
-              <p className="text-gray-400 mt-1">
-                Manage your preferences and email notifications
-              </p>
-            </div>
+            {/* Neutral Settings Icon */}
+          <div className="h-12 w-12 bg-zinc-900 border border-zinc-700 rounded-xl flex items-center justify-center">
+            <SettingsIcon className="h-6 w-6 text-gray-300" />
+          </div>
+
+          <div>
+            <h1 className="text-4xl font-bold text-white">Settings</h1>
+            <p className="text-gray-400 mt-1">
+              Manage your preferences and email notifications
+            </p>
+          </div>
           </div>
           {!isEditMode ? (
             <Button
               onClick={() => setIsEditMode(true)}
-              className="bg-purple-600 hover:bg-purple-700"
+              className="bg-zinc-700 hover:bg-zinc-600 border border-zinc-600 text-white"
             >
               Edit
             </Button>
@@ -612,11 +614,15 @@ export default function SettingsPage() {
             <div className="flex gap-2">
               <Button
                 onClick={handleSaveSettings}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-zinc-700 hover:bg-zinc-600 border border-zinc-600 text-white"
               >
                 Save
               </Button>
-              <Button onClick={handleCancel} variant="outline">
+              <Button 
+                onClick={handleCancel} 
+                variant="outline"
+                className="border-zinc-600 text-gray-300 hover:bg-zinc-800"
+              >
                 Cancel
               </Button>
             </div>
@@ -628,10 +634,10 @@ export default function SettingsPage() {
           <Card
             className={
               alertMessage.type === "success"
-                ? "bg-green-950/20 border-green-900/50"
+                ? "bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors"
                 : alertMessage.type === "error"
-                ? "bg-red-950/20 border-red-900/50"
-                : "bg-blue-950/20 border-blue-900/50"
+                ? "bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors"
+                : "bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors"
             }
           >
             <CardContent className="pt-6 flex items-center gap-3">
@@ -658,122 +664,113 @@ export default function SettingsPage() {
         )}
 
         {/* Email Preferences */}
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardHeader className="border-b border-zinc-800">
-            <CardTitle className="flex items-center gap-2 text-white text-2xl">
-              <Mail className="h-6 w-6 text-purple-400" />
-              Email Preferences
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {!isEditMode ? (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-50 to-blue-50 rounded-lg border border-slate-200">
-                  <span className="font-semibold">Weekly Emails</span>
-                  <Badge
-                    className={
-                      editedSettings.emailEnabled
-                        ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-800"
-                    }
-                  >
-                    {editedSettings.emailEnabled ? "Enabled" : "Disabled"}
-                  </Badge>
-                </div>
+<Card className="bg-zinc-900 border-zinc-700">
+  <CardHeader className="border-b border-zinc-700">
+    <CardTitle className="flex items-center gap-2 text-white text-2xl">
+      <Mail className="h-6 w-6 text-gray-300" />
+      Email Preferences
+    </CardTitle>
+  </CardHeader>
 
-                {editedSettings.emailEnabled && (
-                  <div className="grid md:grid-cols-3 gap-4">
-                    <div className="p-4 bg-slate-50 rounded-lg">
-                      <p className="text-xs text-gray-600 uppercase font-medium">Frequency</p>
-                      <p className="font-semibold mt-2 capitalize">
-                        {editedSettings.emailFrequency === "weekly" && "Every Week"}
-                        {editedSettings.emailFrequency === "biweekly" && "Every 2 Weeks"}
-                        {editedSettings.emailFrequency === "monthly" && "Every Month"}
-                      </p>
-                    </div>
-                    <div className="p-4 bg-slate-50 rounded-lg">
-                      <p className="text-xs text-gray-600 uppercase font-medium">Day</p>
-                      <p className="font-semibold mt-2 capitalize">
-                        {editedSettings.emailDay}
-                      </p>
-                    </div>
-                    <div className="p-4 bg-slate-50 rounded-lg">
-                      <p className="text-xs text-gray-600 uppercase font-medium">Time</p>
-                      <p className="font-semibold mt-2">{editedSettings.emailTime}</p>
-                    </div>
+  <CardContent className="space-y-6 pt-6">
+    {!isEditMode ? (
+      <>
+        {/* Status Row */}
+        <div className="flex items-center justify-between p-4 bg-zinc-800 rounded-lg border border-zinc-700">
+          <span className="font-semibold text-white">Email Delivery</span>
+          <Badge
+            className={
+              editedSettings.emailEnabled
+                ? "bg-gray-200 text-black"
+                : "bg-zinc-600 text-white"
+            }
+          >
+            {editedSettings.emailEnabled ? "Enabled" : "Disabled"}
+          </Badge>
+        </div>
 
-                    <div className="p-5 bg-zinc-800/50 rounded-xl border border-zinc-700">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Globe className="h-5 w-5 text-orange-400" />
-                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                          Timezone
-                        </p>
-                      </div>
-                      <p className="font-semibold text-white text-sm">
-                        {editedSettings.timezone}
-                      </p>
-                    </div>
-                  </div>
-                )}
+        {editedSettings.emailEnabled && (
+          <div className="grid md:grid-cols-4 gap-4">
+            {[
+              ["Frequency", editedSettings.emailFrequency],
+              ["Day", editedSettings.emailDay],
+              ["Time", editedSettings.emailTime],
+              ["Timezone", editedSettings.timezone],
+            ].map(([label, value]) => (
+              <div
+                key={label}
+                className="p-4 bg-zinc-800 rounded-lg border border-zinc-700"
+              >
+                <p className="text-xs text-gray-400 uppercase">{label}</p>
+                <p className="mt-2 text-white font-semibold capitalize">
+                  {value}
+                </p>
               </div>
-            ) : (
-              <>
-                <label className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg border border-blue-200 cursor-pointer">
+            ))}
+          </div>
+        )}
+      </>
+    ) : (
+      <>
+        {/* Enable */}
+        <label className="flex items-center gap-3 p-4 bg-zinc-800 border border-zinc-700 rounded-lg">
+          <input
+            type="checkbox"
+            checked={editedSettings.emailEnabled}
+            onChange={(e) =>
+              setEditedSettings({
+                ...editedSettings,
+                emailEnabled: e.target.checked,
+              })
+            }
+            className="w-5 h-5 accent-gray-300"
+          />
+          <span className="text-white font-semibold">
+            Enable Email Insights
+          </span>
+        </label>
+
+        {editedSettings.emailEnabled && (
+          <div className="grid md:grid-cols-2 gap-5">
+            {[
+              ["Frequency", editedSettings.emailFrequency, "select"],
+              ["Day", editedSettings.emailDay, "select"],
+              ["Time", editedSettings.emailTime, "time"],
+              ["Timezone", editedSettings.timezone, "select"],
+            ].map(([label, value, type]) => (
+              <div key={label}>
+                <p className="text-sm text-gray-400 mb-2">{label}</p>
+                {type === "time" ? (
                   <input
-                    type="checkbox"
-                    checked={editedSettings.emailEnabled}
+                    type="time"
+                    value={value as string}
                     onChange={(e) =>
                       setEditedSettings({
                         ...editedSettings,
-                        emailEnabled: e.target.checked,
+                        emailTime: e.target.value,
                       })
                     }
-                    className="w-5 h-5 rounded accent-purple-600"
+                    className="w-full bg-black border border-zinc-700 rounded-lg px-4 py-3 text-white focus:border-gray-400 focus:outline-none"
                   />
-                  <span className="font-semibold text-white text-lg">
-                    Enable weekly email insights
-                  </span>
-                </label>
-
-                {editedSettings.emailEnabled && (
-                  <div className="grid md:grid-cols-2 gap-6 p-6 bg-zinc-800/30 rounded-xl border-2 border-zinc-700">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-blue-400" />
-                        Frequency
-                      </label>
-                      <select
-                        value={editedSettings.emailFrequency}
-                        onChange={(e) =>
-                          setEditedSettings({
-                            ...editedSettings,
-                            emailFrequency: e.target.value as any,
-                          })
-                        }
-                        className="w-full bg-zinc-900 border-2 border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500"
-                      >
-                        <option value="weekly">Weekly</option>
-                        <option value="biweekly">Bi-Weekly</option>
-                        <option value="monthly">Monthly</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-green-400" />
-                        Day of Week
-                      </label>
-                      <select
-                        value={editedSettings.emailDay}
-                        onChange={(e) =>
-                          setEditedSettings({
-                            ...editedSettings,
-                            emailDay: e.target.value,
-                          })
-                        }
-                        className="w-full bg-zinc-900 border-2 border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500"
-                      >
-                        {[
+                ) : (
+                  <select
+                    value={value as string}
+                    onChange={(e) =>
+                      setEditedSettings({
+                        ...editedSettings,
+                        [label === "Frequency"
+                          ? "emailFrequency"
+                          : label === "Day"
+                          ? "emailDay"
+                          : "timezone"]: e.target.value,
+                      })
+                    }
+                    className="w-full bg-black border border-zinc-700 rounded-lg px-4 py-3 text-white focus:border-gray-400 focus:outline-none"
+                  >
+                    {(label === "Frequency"
+                      ? ["weekly", "biweekly", "monthly"]
+                      : label === "Day"
+                      ? [
                           "sunday",
                           "monday",
                           "tuesday",
@@ -781,97 +778,59 @@ export default function SettingsPage() {
                           "thursday",
                           "friday",
                           "saturday",
-                        ].map((d) => (
-                          <option key={d} value={d}>
-                            {d.charAt(0).toUpperCase() + d.slice(1)}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-purple-400" />
-                        Time of Day
-                      </label>
-                      <input
-                        type="time"
-                        value={editedSettings.emailTime}
-                        onChange={(e) =>
-                          setEditedSettings({
-                            ...editedSettings,
-                            emailTime: e.target.value,
-                          })
-                        }
-                        className="w-full bg-zinc-900 border-2 border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
-                        <Globe className="h-4 w-4 text-orange-400" />
-                        Timezone
-                      </label>
-                      <select
-                        value={editedSettings.timezone}
-                        onChange={(e) =>
-                          setEditedSettings({
-                            ...editedSettings,
-                            timezone: e.target.value,
-                          })
-                        }
-                        className="w-full bg-zinc-900 border-2 border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500"
-                      >
-                        {timezones.map((tz) => (
-                          <option key={tz} value={tz}>
-                            {tz}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
-                        <Target className="h-4 w-4 text-pink-400" />
-                        Number of Ideas per Email
-                      </label>
-                      <select
-                        value={editedSettings.ideaCount}
-                        onChange={(e) =>
-                          setEditedSettings({
-                            ...editedSettings,
-                            ideaCount: parseInt(e.target.value),
-                          })
-                        }
-                        className="w-full bg-zinc-900 border-2 border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-purple-500"
-                      >
-                        <option value={3}>3 ideas</option>
-                        <option value={5}>5 ideas</option>
-                        <option value={10}>10 ideas</option>
-                      </select>
-                    </div>
-                  </div>
+                        ]
+                      : timezones
+                    ).map((v) => (
+                      <option key={v} value={v}>
+                        {v}
+                      </option>
+                    ))}
+                  </select>
                 )}
+              </div>
+            ))}
 
-                <Button
-                  onClick={handleSendTestEmail}
-                  disabled={sending}
-                  variant="outline"
-                  className="w-full"
-                >
-                  {sending ? "Sending..." : "Send Test Email"}
-                </Button>
-              </>
-            )}
-          </CardContent>
-        </Card>
+            <div className="md:col-span-2">
+              <p className="text-sm text-gray-400 mb-2">
+                Number of ideas per email
+              </p>
+              <select
+                value={editedSettings.ideaCount}
+                onChange={(e) =>
+                  setEditedSettings({
+                    ...editedSettings,
+                    ideaCount: parseInt(e.target.value),
+                  })
+                }
+                className="w-full bg-black border border-zinc-700 rounded-lg px-4 py-3 text-white focus:border-gray-400 focus:outline-none"
+              >
+                <option value={3}>3 ideas</option>
+                <option value={5}>5 ideas</option>
+                <option value={10}>10 ideas</option>
+              </select>
+            </div>
+          </div>
+        )}
+
+        <Button
+          onClick={handleSendTestEmail}
+          variant="outline"
+          className="w-full border-zinc-600 text-gray-300 hover:bg-zinc-800"
+        >
+          Send Test Email
+        </Button>
+      </>
+    )}
+  </CardContent>
+</Card>
+
 
         {/* Content Preferences */}
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardHeader className="border-b border-zinc-800">
+        <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
+          <CardHeader className="border-b border-zinc-700">
             <div>
               <CardTitle className="flex items-center gap-2 text-white text-2xl mb-2">
-                <Filter className="h-6 w-6 text-blue-400" />
+                <Filter className="h-6 w-6 text-gray-400" />
                 Content Preferences
               </CardTitle>
               <p className="text-sm text-gray-400">
@@ -882,9 +841,9 @@ export default function SettingsPage() {
           <CardContent className="space-y-6 pt-6">
             {!isEditMode ? (
               <div className="grid md:grid-cols-3 gap-4">
-                <div className="p-5 bg-blue-950/20 rounded-xl border-2 border-blue-900/30">
+                <div className="p-5 bg-zinc-800 rounded-xl border-2 border-zinc-700 hover:bg-zinc-750 transition-colors">
                   <div className="flex items-center gap-2 mb-3">
-                    <Target className="h-5 w-5 text-blue-400" />
+                    <Target className="h-5 w-5 text-gray-400" />
                     <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
                       Focus Areas
                     </p>
@@ -894,9 +853,9 @@ export default function SettingsPage() {
                   </p>
                 </div>
 
-                <div className="p-5 bg-red-950/20 rounded-xl border-2 border-red-900/30">
+                <div className="p-5 bg-zinc-800 rounded-xl border-2 border-zinc-700 hover:bg-zinc-750 transition-colors">
                   <div className="flex items-center gap-2 mb-3">
-                    <X className="h-5 w-5 text-red-400" />
+                    <X className="h-5 w-5 text-gray-400" />
                     <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
                       Avoid Topics
                     </p>
@@ -906,9 +865,9 @@ export default function SettingsPage() {
                   </p>
                 </div>
 
-                <div className="p-5 bg-green-950/20 rounded-xl border-2 border-green-900/30">
+                <div className="p-5 bg-zinc-800 rounded-xl border-2 border-zinc-700 hover:bg-zinc-750 transition-colors">
                   <div className="flex items-center gap-2 mb-3">
-                    <Film className="h-5 w-5 text-green-400" />
+                    <Film className="h-5 w-5 text-gray-400" />
                     <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
                       Preferred Formats
                     </p>
@@ -994,34 +953,34 @@ export default function SettingsPage() {
         </Card>
 
         {/* Email History */}
-        <Card>
+        <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Mail className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-white">
+              <Mail className="h-5 w-5 text-gray-400" />
               Email History
             </CardTitle>
           </CardHeader>
           <CardContent>
             {emailHistory.length === 0 ? (
               <div className="text-center py-8">
-                <Mail className="h-12 w-12 text-gray-300 mx-auto mb-2" />
-                <p className="text-gray-600">No emails sent yet</p>
+                <Mail className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                <p className="text-gray-400">No emails sent yet</p>
               </div>
             ) : (
               <div className="space-y-4">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b bg-gray-50">
-                        <th className="text-left py-3 px-3 font-semibold">Status</th>
-                        <th className="text-left py-3 px-3 font-semibold">Subject</th>
-                        <th className="text-left py-3 px-3 font-semibold">Ideas</th>
-                        <th className="text-left py-3 px-3 font-semibold">Date & Time</th>
+                      <tr className="border-b border-zinc-700 bg-zinc-800">
+                        <th className="text-left py-3 px-3 font-semibold text-white">Status</th>
+                        <th className="text-left py-3 px-3 font-semibold text-white">Subject</th>
+                        <th className="text-left py-3 px-3 font-semibold text-white">Ideas</th>
+                        <th className="text-left py-3 px-3 font-semibold text-white">Date & Time</th>
                       </tr>
                     </thead>
                     <tbody>
                       {emailHistory.map((email) => (
-                        <tr key={email.id} className="border-b hover:bg-slate-50">
+                        <tr key={email.id} className="border-b border-zinc-700 hover:bg-zinc-800 transition-colors">
                           <td className="py-3 px-3">
                             <Badge className={getStatusColor(email.status)}>
                               {email.status.charAt(0).toUpperCase() +
@@ -1030,18 +989,18 @@ export default function SettingsPage() {
                           </td>
                           <td className="py-3 px-3">
                             <div>
-                              <p className="font-medium">{email.subject}</p>
+                              <p className="font-medium text-white">{email.subject}</p>
                               {email.failureReason && (
-                                <p className="text-xs text-red-600 mt-1">
+                                <p className="text-xs text-red-400 mt-1">
                                   ⚠️ {email.failureReason}
                                 </p>
                               )}
                             </div>
                           </td>
-                          <td className="py-3 px-3 text-center font-semibold">{email.ideaCount}</td>
+                          <td className="py-3 px-3 text-center font-semibold text-white">{email.ideaCount}</td>
                           <td className="py-3 px-3">
-                            <p className="text-sm">{new Date(email.sentAt).toLocaleDateString()}</p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-sm text-white">{new Date(email.sentAt).toLocaleDateString()}</p>
+                            <p className="text-xs text-gray-400">
                               {new Date(email.sentAt).toLocaleTimeString()}
                             </p>
                           </td>
@@ -1053,12 +1012,13 @@ export default function SettingsPage() {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-center gap-2 mt-6 pt-4 border-t">
+                  <div className="flex items-center justify-center gap-2 mt-6 pt-4 border-t border-zinc-700">
                     <Button
                       variant="outline"
                       size="sm"
                       disabled={historyPage === 1}
                       onClick={() => setHistoryPage(Math.max(1, historyPage - 1))}
+                      className="border-zinc-600 text-gray-300 hover:bg-zinc-800"
                     >
                       ◀ Previous
                     </Button>
@@ -1070,7 +1030,7 @@ export default function SettingsPage() {
                           variant={historyPage === page ? "default" : "outline"}
                           size="sm"
                           onClick={() => setHistoryPage(page)}
-                          className={historyPage === page ? "min-w-[40px] bg-purple-600 hover:bg-purple-700" : "min-w-[40px]"}
+                          className={historyPage === page ? "min-w-[40px] bg-zinc-700 hover:bg-zinc-600 border border-zinc-600 text-white" : "min-w-[40px] border-zinc-600 text-gray-300 hover:bg-zinc-800"}
                         >
                           {page}
                         </Button>
@@ -1084,6 +1044,7 @@ export default function SettingsPage() {
                       onClick={() =>
                         setHistoryPage(Math.min(totalPages, historyPage + 1))
                       }
+                      className="border-zinc-600 text-gray-300 hover:bg-zinc-800"
                     >
                       Next ▶
                     </Button>
@@ -1099,21 +1060,21 @@ export default function SettingsPage() {
         </Card>
 
         {/* Channel Management */}
-        <Card>
+        <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <SettingsIcon className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-white">
+              <SettingsIcon className="h-5 w-5 text-gray-400" />
               YouTube Channel Management
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {channelStatus.isConnected ? (
               <>
-                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <p className="text-sm text-blue-800 font-semibold">
+                <div className="p-4 bg-zinc-800 rounded-lg border border-zinc-700 hover:bg-zinc-750 transition-colors">
+                  <p className="text-sm text-white font-semibold">
                     {channelStatus.channelName}
                   </p>
-                  <div className="text-sm text-blue-700 mt-3">
+                  <div className="text-sm text-gray-300 mt-3">
                     <span className="font-medium">Sync Status:</span>{" "}
                     <Badge className={getSyncStatusColor(channelStatus.syncStatus) + " ml-2"}>
                       {channelStatus.syncStatus?.charAt(0).toUpperCase() +
@@ -1121,7 +1082,7 @@ export default function SettingsPage() {
                     </Badge>
                   </div>
                   {channelStatus.lastSyncedAt && (
-                    <p className="text-sm text-blue-700 mt-2">
+                    <p className="text-sm text-gray-300 mt-2">
                       <span className="font-medium">Last Synced:</span>{" "}
                       {new Date(channelStatus.lastSyncedAt).toLocaleString()}
                     </p>
@@ -1132,7 +1093,7 @@ export default function SettingsPage() {
                   <Button
                     onClick={handleResyncChannel}
                     disabled={syncing || !channelStatus.isConnected}
-                    className={syncing || !channelStatus.isConnected ? "bg-gray-400 text-gray-700 cursor-not-allowed opacity-60 hover:bg-gray-400" : "bg-purple-600 hover:bg-purple-700"}
+                    className={syncing || !channelStatus.isConnected ? "bg-gray-600 text-gray-400 cursor-not-allowed opacity-60 hover:bg-gray-600 border border-zinc-600" : "bg-zinc-700 hover:bg-zinc-600 border border-zinc-600 text-white"}
                   >
                     <RotateCcw className="mr-2 h-4 w-4" />
                     {syncing ? "Syncing..." : "Re-sync Channel"}
@@ -1140,7 +1101,7 @@ export default function SettingsPage() {
                   <Button
                     onClick={handleDisconnectChannel}
                     disabled={disconnecting}
-                    className={disconnecting ? "bg-gray-400 text-gray-700 cursor-not-allowed opacity-60 hover:bg-gray-400" : "bg-purple-600 hover:bg-purple-700"}
+                    className={disconnecting ? "bg-gray-600 text-gray-400 cursor-not-allowed opacity-60 hover:bg-gray-600 border border-zinc-600" : "bg-zinc-700 hover:bg-zinc-600 border border-zinc-600 text-white"}
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
                     {disconnecting ? "Disconnecting..." : "Disconnect Channel"}
@@ -1149,8 +1110,8 @@ export default function SettingsPage() {
               </>
             ) : (
               <>
-                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <div className="text-sm text-gray-800 font-semibold flex items-center gap-2">
+                <div className="p-4 bg-zinc-800 rounded-lg border border-zinc-700 hover:bg-zinc-750 transition-colors">
+                  <div className="text-sm text-white font-semibold flex items-center gap-2">
                     Sync Status:
                     <Badge className={getSyncStatusColor(channelStatus.syncStatus)}>
                       Disconnected
@@ -1160,7 +1121,7 @@ export default function SettingsPage() {
 
                 <Button
                   onClick={handleConnectChannel}
-                  className="w-full bg-purple-600 hover:bg-purple-700"
+                  className="w-full bg-zinc-700 hover:bg-zinc-600 border border-zinc-600 text-white"
                 >
                   Connect YouTube Channel
                 </Button>

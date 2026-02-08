@@ -19,37 +19,37 @@ export default function DocumentationPage() {
 
   const features = [
     {
-      icon: <Brain className="h-8 w-8 text-purple-600" />,
+      icon: <Brain className="h-8 w-8 text-white" />,
       title: "AI-Powered Video Ideas",
       description:
         "Get intelligent video content suggestions based on your channel's performance, audience comments, and trending topics. Each idea includes predicted engagement rates and confidence scores.",
     },
     {
-      icon: <BarChart3 className="h-8 w-8 text-blue-600" />,
+      icon: <BarChart3 className="h-8 w-8 text-white" />,
       title: "Performance Analytics",
       description:
         "Analyze your top-performing content formats, tones, hooks, and upload times. Discover patterns in what resonates with your audience and optimize your content strategy.",
     },
     {
-      icon: <Mail className="h-8 w-8 text-green-600" />,
+      icon: <Mail className="h-8 w-8 text-white" />,
       title: "Weekly Email Insights",
       description:
         "Receive personalized weekly emails with your top 5 video ideas, key insights from your data, performance patterns, and actionable recommendations. Fully customizable frequency and preferences.",
     },
     {
-      icon: <Video className="h-8 w-8 text-indigo-600" />,
+      icon: <Video className="h-8 w-8 text-white" />,
       title: "Channel Management",
       description:
         "Connect your YouTube channel, manage your content, and control how often we sync your data. Monitor sync status and keep your information up-to-date.",
     },
     {
-      icon: <Zap className="h-8 w-8 text-yellow-600" />,
+      icon: <Zap className="h-8 w-8 text-white" />,
       title: "Real-Time Recommendations",
       description:
         "Get instant access to video ideas and insights based on your latest video performance and audience feedback. Powered by advanced AI analysis.",
     },
     {
-      icon: <Shield className="h-8 w-8 text-red-600" />,
+      icon: <Shield className="h-8 w-8 text-white" />,
       title: "Privacy & Security",
       description:
         "Your data is secure and encrypted. We only access publicly available YouTube data and use industry-standard security practices to protect your information.",
@@ -103,25 +103,29 @@ export default function DocumentationPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6">
-      <div className="max-w-5xl mx-auto space-y-8">
+    <div className="min-h-screen bg-black">
+      {/* Navbar space */}
+      <div className="h-20" />
+
+      <div className="max-w-5xl mx-auto px-6 py-8 space-y-8">
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <Brain className="h-10 w-10 text-purple-600" />
-            <h1 className="text-4xl font-bold">CreatorMind Documentation</h1>
+            <div className="h-10 w-10 text-white" />
+            <h1 className="text-4xl font-bold text-white">CreatorMind Documentation</h1>
           </div>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-gray-400">
             Master the features that help you create better content
           </p>
         </div>
 
         {/* Quick Navigation */}
-        <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+        <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
           <CardContent className="pt-6">
             <div className="grid md:grid-cols-4 gap-3">
               <Button
                 variant="outline"
+                className="border-zinc-600 text-gray-300 hover:bg-zinc-800"
                 onClick={() =>
                   document
                     .getElementById("getting-started")
@@ -132,6 +136,7 @@ export default function DocumentationPage() {
               </Button>
               <Button
                 variant="outline"
+                className="border-zinc-600 text-gray-300 hover:bg-zinc-800"
                 onClick={() =>
                   document
                     .getElementById("features")
@@ -142,6 +147,7 @@ export default function DocumentationPage() {
               </Button>
               <Button
                 variant="outline"
+                className="border-zinc-600 text-gray-300 hover:bg-zinc-800"
                 onClick={() =>
                   document
                     .getElementById("email-setup")
@@ -152,6 +158,7 @@ export default function DocumentationPage() {
               </Button>
               <Button
                 variant="outline"
+                className="border-zinc-600 text-gray-300 hover:bg-zinc-800"
                 onClick={() =>
                   document
                     .getElementById("faq")
@@ -166,36 +173,36 @@ export default function DocumentationPage() {
 
         {/* Getting Started */}
         <section id="getting-started" className="scroll-mt-20">
-          <h2 className="text-2xl font-bold mb-4">Getting Started</h2>
+          <h2 className="text-2xl font-bold mb-4 text-white">Getting Started</h2>
           <div className="grid md:grid-cols-3 gap-4">
-            <Card>
+            <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
               <CardHeader>
-                <div className="text-3xl font-bold text-purple-600">1</div>
-                <CardTitle>Connect Your Channel</CardTitle>
+                <div className="text-3xl font-bold text-white">1</div>
+                <CardTitle className="text-white">Connect Your Channel</CardTitle>
               </CardHeader>
-              <CardContent className="text-sm text-gray-600">
+              <CardContent className="text-sm text-gray-400">
                 Go to Dashboard and click "Connect YouTube Channel" to link your
                 YouTube account. You'll need to authorize CreatorMind to access
                 your channel data.
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
               <CardHeader>
-                <div className="text-3xl font-bold text-blue-600">2</div>
-                <CardTitle>Set Your Preferences</CardTitle>
+                <div className="text-3xl font-bold text-white">2</div>
+                <CardTitle className="text-white">Set Your Preferences</CardTitle>
               </CardHeader>
-              <CardContent className="text-sm text-gray-600">
+              <CardContent className="text-sm text-gray-400">
                 Visit Settings to customize your email frequency, content
                 preferences, focus areas, and avoided topics. These settings
                 directly impact the ideas you receive.
               </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
               <CardHeader>
-                <div className="text-3xl font-bold text-green-600">3</div>
-                <CardTitle>Receive Ideas</CardTitle>
+                <div className="text-3xl font-bold text-white">3</div>
+                <CardTitle className="text-white">Receive Ideas</CardTitle>
               </CardHeader>
-              <CardContent className="text-sm text-gray-600">
+              <CardContent className="text-sm text-gray-400">
                 Get personalized video ideas via email on your chosen schedule.
                 Every idea includes why it will work and how to implement it.
               </CardContent>
@@ -205,17 +212,17 @@ export default function DocumentationPage() {
 
         {/* Core Features */}
         <section id="features" className="scroll-mt-20">
-          <h2 className="text-2xl font-bold mb-6">Core Features</h2>
+          <h2 className="text-2xl font-bold mb-6 text-white">Core Features</h2>
           <div className="grid md:grid-cols-2 gap-4">
             {features.map((feature, idx) => (
-              <Card key={idx}>
+              <Card key={idx} className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
                 <CardHeader>
                   <div className="flex items-center gap-3">
                     {feature.icon}
-                    <CardTitle className="text-lg">{feature.title}</CardTitle>
+                    <CardTitle className="text-lg text-white">{feature.title}</CardTitle>
                   </div>
                 </CardHeader>
-                <CardContent className="text-sm text-gray-600">
+                <CardContent className="text-sm text-gray-400">
                   {feature.description}
                 </CardContent>
               </Card>
@@ -225,48 +232,48 @@ export default function DocumentationPage() {
 
         {/* Email Features */}
         <section id="email-setup" className="scroll-mt-20">
-          <h2 className="text-2xl font-bold mb-6">Weekly Email Insights</h2>
-          <p className="text-gray-600 mb-6">
+          <h2 className="text-2xl font-bold mb-6 text-white">Weekly Email Insights</h2>
+          <p className="text-gray-400 mb-6">
             Your weekly emails include everything you need to plan your next
             videos. Here's what you'll receive:
           </p>
 
           <div className="grid md:grid-cols-2 gap-4 mb-6">
             {emailFeatures.map((feature, idx) => (
-              <Card key={idx}>
+              <Card key={idx} className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
                 <CardHeader>
-                  <CardTitle className="text-base">{feature.title}</CardTitle>
+                  <CardTitle className="text-base text-white">{feature.title}</CardTitle>
                 </CardHeader>
-                <CardContent className="text-sm text-gray-600">
+                <CardContent className="text-sm text-gray-400">
                   {feature.description}
                 </CardContent>
               </Card>
             ))}
           </div>
 
-          <Card className="bg-blue-50 border-blue-200">
+          <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Mail className="h-5 w-5 text-blue-600" />
+              <CardTitle className="flex items-center gap-2 text-white">
+                <Mail className="h-5 w-5 text-white" />
                 Content Preferences in Emails
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-gray-300">
                 Your content preferences (focus areas, avoided topics, and
                 preferred formats) are applied to all ideas sent via email. This
                 ensures you only receive relevant suggestions.
               </p>
-              <p className="text-sm font-medium text-gray-900">
+              <p className="text-sm font-medium text-white">
                 Update your preferences in Settings anytime:
               </p>
               <div className="grid gap-3">
                 {contentPreferences.map((pref, idx) => (
                   <div key={idx} className="text-sm">
-                    <span className="font-medium text-gray-900">
+                    <span className="font-medium text-white">
                       {pref.title}:
                     </span>{" "}
-                    <span className="text-gray-700">{pref.description}</span>
+                    <span className="text-gray-400">{pref.description}</span>
                   </div>
                 ))}
               </div>
@@ -276,47 +283,47 @@ export default function DocumentationPage() {
 
         {/* Email Customization */}
         <section>
-          <h2 className="text-2xl font-bold mb-6">Customize Your Emails</h2>
+          <h2 className="text-2xl font-bold mb-6 text-white">Customize Your Emails</h2>
           <div className="grid md:grid-cols-2 gap-4">
-            <Card>
+            <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
               <CardHeader>
-                <CardTitle className="text-base">
+                <CardTitle className="text-base text-white">
                   Email Frequency Options
                 </CardTitle>
               </CardHeader>
-              <CardContent className="text-sm text-gray-600 space-y-2">
+              <CardContent className="text-sm text-gray-400 space-y-2">
                 <p>
-                  <span className="font-medium">Weekly:</span> Get fresh ideas
+                  <span className="font-medium text-white">Weekly:</span> Get fresh ideas
                   every 7 days
                 </p>
                 <p>
-                  <span className="font-medium">Bi-Weekly:</span> Receive ideas
+                  <span className="font-medium text-white">Bi-Weekly:</span> Receive ideas
                   every 14 days
                 </p>
                 <p>
-                  <span className="font-medium">Monthly:</span> Monthly digest
+                  <span className="font-medium text-white">Monthly:</span> Monthly digest
                   of ideas
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
               <CardHeader>
-                <CardTitle className="text-base">
+                <CardTitle className="text-base text-white">
                   Scheduling Your Emails
                 </CardTitle>
               </CardHeader>
-              <CardContent className="text-sm text-gray-600 space-y-2">
+              <CardContent className="text-sm text-gray-400 space-y-2">
                 <p>
-                  <span className="font-medium">Day:</span> Choose any day of
+                  <span className="font-medium text-white">Day:</span> Choose any day of
                   the week
                 </p>
                 <p>
-                  <span className="font-medium">Time:</span> Set your preferred
+                  <span className="font-medium text-white">Time:</span> Set your preferred
                   time
                 </p>
                 <p>
-                  <span className="font-medium">Timezone:</span> Automatic
+                  <span className="font-medium text-white">Timezone:</span> Automatic
                   timezone detection
                 </p>
               </CardContent>
@@ -326,56 +333,56 @@ export default function DocumentationPage() {
 
         {/* FAQ */}
         <section id="faq" className="scroll-mt-20">
-          <h2 className="text-2xl font-bold mb-6">Frequently Asked Questions</h2>
+          <h2 className="text-2xl font-bold mb-6 text-white">Frequently Asked Questions</h2>
           <div className="space-y-3">
-            <Card>
+            <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
               <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <HelpCircle className="h-5 w-5 text-purple-600" />
+                <CardTitle className="text-base flex items-center gap-2 text-white">
+                  <HelpCircle className="h-5 w-5 text-white" />
                   How often is my channel data updated?
                 </CardTitle>
               </CardHeader>
-              <CardContent className="text-sm text-gray-600">
+              <CardContent className="text-sm text-gray-400">
                 Your channel data syncs automatically. You can manually refresh
                 by clicking "Re-sync Channel" in Settings at any time.
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
               <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <HelpCircle className="h-5 w-5 text-blue-600" />
+                <CardTitle className="text-base flex items-center gap-2 text-white">
+                  <HelpCircle className="h-5 w-5 text-white" />
                   Can I change my content preferences anytime?
                 </CardTitle>
               </CardHeader>
-              <CardContent className="text-sm text-gray-600">
+              <CardContent className="text-sm text-gray-400">
                 Yes! Your content preferences update immediately. Future ideas
                 will reflect your new focus areas, avoided topics, and preferred
                 formats.
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
               <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <HelpCircle className="h-5 w-5 text-green-600" />
+                <CardTitle className="text-base flex items-center gap-2 text-white">
+                  <HelpCircle className="h-5 w-5 text-white" />
                   What if I want to unsubscribe from emails?
                 </CardTitle>
               </CardHeader>
-              <CardContent className="text-sm text-gray-600">
+              <CardContent className="text-sm text-gray-400">
                 You can disable emails in Settings, or click the unsubscribe
                 link at the bottom of any email. No questions asked!
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
               <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <HelpCircle className="h-5 w-5 text-yellow-600" />
+                <CardTitle className="text-base flex items-center gap-2 text-white">
+                  <HelpCircle className="h-5 w-5 text-white" />
                   How are video ideas generated?
                 </CardTitle>
               </CardHeader>
-              <CardContent className="text-sm text-gray-600">
+              <CardContent className="text-sm text-gray-400">
                 Ideas are generated using AI analysis of your channel's
                 performance, audience comments, trending topics, and your
                 content preferences. Each idea includes a confidence score and
@@ -383,14 +390,14 @@ export default function DocumentationPage() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
               <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <HelpCircle className="h-5 w-5 text-red-600" />
+                <CardTitle className="text-base flex items-center gap-2 text-white">
+                  <HelpCircle className="h-5 w-5 text-white" />
                   Is my data secure?
                 </CardTitle>
               </CardHeader>
-              <CardContent className="text-sm text-gray-600">
+              <CardContent className="text-sm text-gray-400">
                 Yes! We use industry-standard encryption and only access publicly
                 available YouTube data. Your privacy is our priority.
               </CardContent>
@@ -399,12 +406,12 @@ export default function DocumentationPage() {
         </section>
 
         {/* Support */}
-        <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+        <Card className="bg-zinc-900 border-zinc-700 hover:bg-zinc-800 transition-colors">
           <CardHeader>
-            <CardTitle>Need Help?</CardTitle>
+            <CardTitle className="text-white">Need Help?</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-gray-700">
+            <p className="text-gray-300">
               Can't find what you're looking for? Check out our support channels:
             </p>
             <div className="flex gap-3 flex-wrap">
@@ -412,12 +419,13 @@ export default function DocumentationPage() {
                 onClick={() =>
                   (window.location.href = "mailto:support@creatormind.ai")
                 }
-                className="bg-purple-600 hover:bg-purple-700"
+                className="bg-zinc-700 hover:bg-zinc-600 border border-zinc-600 text-white"
               >
                 Contact Support
               </Button>
               <Button
                 variant="outline"
+                className="border-zinc-600 text-gray-300 hover:bg-zinc-800"
                 onClick={() => router.push("/settings")}
               >
                 Go to Settings
@@ -430,8 +438,8 @@ export default function DocumentationPage() {
         <div className="flex justify-center pt-6">
           <Button
             variant="outline"
+            className="gap-2 border-zinc-600 text-gray-300 hover:bg-zinc-800"
             onClick={() => router.back()}
-            className="gap-2"
           >
             ← Back
           </Button>
