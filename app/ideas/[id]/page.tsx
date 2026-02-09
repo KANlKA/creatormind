@@ -92,8 +92,6 @@ export default function IdeaDetailPage() {
     );
   }
   const contentPack = generateHeuristicContent(idea);
-
-  const rankEmojis = ["🥇", "🥈", "🥉", "4️⃣", "5️⃣"];
   const confidenceColor =
     idea.confidence >= 0.8
       ? "text-green-600"
@@ -117,7 +115,6 @@ export default function IdeaDetailPage() {
         <Card className="mb-6">
           <CardHeader>
             <div className="flex items-center gap-3 mb-3">
-              <span className="text-4xl">{rankEmojis[ideaIndex]}</span>
               <Badge variant="outline" className="text-lg px-3 py-1">
                 Idea #{idea.rank}
               </Badge>
