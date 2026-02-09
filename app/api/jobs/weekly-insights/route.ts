@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/app/api/auth/[...nextauth]/route"
 import connectDB from "@/lib/db/mongodb"
 import User from "@/models/User"
-import { weeklyInsightsQueue } from "@/lib/jobs/queue"
+import { getWeeklyInsightsQueue } from "@/lib/jobs/queue"
 
 export async function POST() {
   const session = await auth()
@@ -17,7 +17,7 @@ export async function POST() {
     return NextResponse.json({ error: "User not found" }, { status: 404 })
   }
 
-  await weeklyInsightsQueue.add(
+  await getWeeklyInsightsQueue().add(
     "weekly-insights-manual",
     { userId: user._id.toString(), forceSend: true },
     { removeOnComplete: true, removeOnFail: true }

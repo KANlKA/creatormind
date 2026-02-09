@@ -3,7 +3,7 @@ import { auth } from "@/app/api/auth/[...nextauth]/route";
 import connectDB from "@/lib/db/mongodb";
 import User from "@/models/User";
 import GeneratedIdea from "@/models/GeneratedIdea";
-import { emailQueue } from "@/lib/jobs/queue";
+import { getEmailQueue } from "@/lib/jobs/queue";
 
 const ALLOWED_FREQUENCIES = new Set(["weekly", "biweekly", "monthly"]);
 const ALLOWED_DAYS = new Set([
@@ -105,7 +105,7 @@ export async function GET(request: NextRequest) {
       .sort({ emailSentAt: -1 })
       .lean();
 
-    const queueCounts = await emailQueue.getJobCounts();
+    const queueCounts = await getEmailQueue().getJobCounts();
 
     return NextResponse.json({
       settings: user.settings,

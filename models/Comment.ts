@@ -43,7 +43,7 @@ const CommentSchema = new Schema<IComment>(
 
 // Indexes
 CommentSchema.index({ videoId: 1, publishedAt: -1 });
-CommentSchema.index({ commentId: 1 });
+// commentId already has unique: true, no need for additional index
 CommentSchema.index({ cluster: 1 });
 
 const Comment: Model<IComment> = mongoose.models.Comment || mongoose.model<IComment>('Comment', CommentSchema);

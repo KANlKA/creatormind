@@ -77,7 +77,7 @@ const VideoSchema = new Schema<IVideo>(
 
 // Indexes
 VideoSchema.index({ userId: 1, publishedAt: -1 });
-VideoSchema.index({ videoId: 1 });
+// videoId already has unique: true, no need for additional index
 VideoSchema.index({ userId: 1, engagementRate: -1 });
 
 const Video: Model<IVideo> = mongoose.models.Video || mongoose.model<IVideo>('Video', VideoSchema);
