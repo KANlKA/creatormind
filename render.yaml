@@ -1,3 +1,22 @@
+# Render Blueprint for CreatorMind Workers
+#
+# NOTE: This Blueprint only defines the service structure.
+# You MUST add environment variables manually in the Render dashboard after creation.
+#
+# Required Environment Variables (add in dashboard):
+# - MONGODB_URI
+# - UPSTASH_REDIS_REST_URL
+# - UPSTASH_REDIS_REST_TOKEN
+# - UPSTASH_REDIS_URL
+# - YOUTUBE_API_KEY
+# - GEMINI_API_KEY
+# - GOOGLE_CLIENT_ID
+# - GOOGLE_CLIENT_SECRET
+# - MAILJET_API_KEY
+# - MAILJET_SECRET_KEY
+# - MAILJET_SENDER_EMAIL
+# - NEXT_PUBLIC_APP_URL
+
 services:
   - type: worker
     name: creatormind-workers
@@ -8,27 +27,3 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: MONGODB_URI
-        generateValue: false
-      - key: UPSTASH_REDIS_REST_URL
-        generateValue: false
-      - key: UPSTASH_REDIS_REST_TOKEN
-        generateValue: false
-      - key: UPSTASH_REDIS_URL
-        generateValue: false
-      - key: YOUTUBE_API_KEY
-        generateValue: false
-      - key: GEMINI_API_KEY
-        generateValue: false
-      - key: GOOGLE_CLIENT_ID
-        generateValue: false
-      - key: GOOGLE_CLIENT_SECRET
-        generateValue: false
-      - key: MAILJET_API_KEY
-        generateValue: false
-      - key: MAILJET_SECRET_KEY
-        generateValue: false
-      - key: MAILJET_SENDER_EMAIL
-        generateValue: false
-      - key: NEXT_PUBLIC_APP_URL
-        generateValue: false
